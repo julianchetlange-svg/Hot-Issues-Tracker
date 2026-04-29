@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hot Issues Tracker</title>
+  <style>
+    :root {
+      --mccoys-green: #0b5d38;
+      --mccoys-green-dark: #073f29;
+      --mccoys-green-soft: #e8f3ed;
+      --mccoys-yellow: #f4c542;
+      --red: #c62828;
+      --orange: #ef7d00;
+      --yellow: #d6a600;
+      --blue: #2463a6;
+      --ink: #1f2a24;
+      --muted: #62736a;
+      --border: #dfe8e2;
+      --shadow: 0 18px 45px rgba(7, 63, 41, 0.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(244, 197, 66, 0.22), transparent 32rem),
+        linear-gradient(135deg, #f8fbf6 0%, #eef5ef 100%);
+      min-height: 100vh;
+    }
+    .shell { width: min(1240px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 48px; }
+    .hero {
+      background: linear-gradient(135deg, var(--mccoys-green) 0%, var(--mccoys-green-dark) 100%);
+      color: white; border-radius: 26px; padding: 30px 34px; box-shadow: var(--shadow);
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ""; position: absolute; right: -70px; top: -80px; width: 250px; height: 250px;
+      background: var(--mccoys-yellow); border-radius: 50%; opacity: 0.22;
+    }
+    .eyebrow {
+      display: inline-flex; background: rgba(244, 197, 66, 0.18);
+      border: 1px solid rgba(244, 197, 66, 0.45); color: #fff7cf;
+      border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 800; margin-bottom: 14px;
+    }
+    h1 { margin: 0; font-size: clamp(32px, 5vw, 50px); line-height: 1.02; letter-spacing: -0.04em; }
+    .subtitle { margin: 14px 0 0; font-size: 16px; line-height: 1.55; color: rgba(255,255,255,.86); max-width: 850px; }
+    .warning {
+      background: #fff6d8; border: 1px solid #f0d16b; color: #4b3b09;
+      border-radius: 16px; padding: 14px 16px; margin: 16px 0 0; font-weight: 700; display: none;
+    }
+    .summary-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin: 18px 0; }
+    .summary-card {
+      background: rgba(255,255,255,.94); border: 1px solid var(--border);
+      border-radius: 18px; padding: 18px; box-shadow: 0 8px 24px rgba(7,63,41,.08);
+    }
+    .summary-card strong { display: block; font-size: 30px; color: var(--mccoys-green); margin-bottom: 4px; }
+    .summary-card span { color: var(--muted); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    .layout { display: grid; grid-template-columns: 410px minmax(0,1fr); gap: 18px; align-items: start; }
+    .panel { background: white; border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 12px 30px rgba(7,63,41,.07); overflow: hidden; }
+    .panel-header { padding: 18px 20px; border-bottom: 1px solid var(--border); background: #fbfcfa; }
+    .panel-header h2 { margin: 0 0 4px; font-size: 20px; }
+    .panel-header p { margin: 0; color: var(--muted); font-size: 14px; }
+    form { padding: 18px 20px 20px; display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; font-size: 13px; font-weight: 900; color: var(--mccoys-green-dark); }
+    input, select, textarea {
+      width: 100%; border: 1px solid #cfdcd4; border-radius: 12px;
+      padding: 11px 12px; font: inherit; color: var(--ink); background: white;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .location-preview {
+      background: var(--mccoys-green-soft); border: 1px solid #cde0d3; color: var(--mccoys-green-dark);
+      border-radius: 14px; padding: 12px; font-size: 13px; line-height: 1.45; display: none;
+    }
+    .btn { border: 0; cursor: pointer; border-radius: 12px; padding: 11px 14px; font-weight: 900; font-size: 14px; }
+    .btn-primary { background: var(--mccoys-yellow); color: #123522; }
+    .btn-secondary { background: white; color: var(--mccoys-green); border: 1px solid var(--border); }
+    .btn-danger { background: #ffe8e8; color: var(--red); border: 1px solid #ffc7c7; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px; background: white; border-bottom: 1px solid var(--border); }
+    .tab-button {
+      border: 0; cursor: pointer; background: transparent; color: var(--mccoys-green-dark);
+      padding: 11px 14px; border-radius: 12px; font-weight: 900; font-size: 14px;
+    }
+    .tab-button.active { background: var(--mccoys-green); color: white; box-shadow: inset 0 -3px 0 var(--mccoys-yellow); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); background: #fbfcfa; }
+    .toolbar input, .toolbar select { max-width: 230px; padding: 9px 10px; border-radius: 10px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .map-wrap { padding: 16px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg,#fff,#f7faf7); }
+    .map-card { border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: #eef5ef; }
+    svg { display: block; width: 100%; height: auto; }
+    .state-shape { fill: #d9e9de; stroke: #fff; stroke-width: 3; }
+    .state-label { font-size: 28px; font-weight: 900; fill: rgba(7,63,41,.38); }
+    .marker { cursor: pointer; stroke: white; stroke-width: 3; filter: drop-shadow(0 3px 5px rgba(0,0,0,.25)); }
+    .marker-critical { fill: var(--red); }
+    .marker-high { fill: var(--orange); }
+    .marker-medium { fill: var(--yellow); }
+    .marker-low { fill: var(--blue); }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 14px; background: white; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+    .legend-item { display: inline-flex; gap: 6px; align-items: center; font-weight: 800; }
+    .dot { width: 12px; height: 12px; border-radius: 999px; display: inline-block; }
+    .issue-list { display: grid; gap: 12px; padding: 16px; }
+    .issue-card { border: 1px solid var(--border); border-left: 6px solid var(--mccoys-green); border-radius: 16px; padding: 15px; background: white; box-shadow: 0 8px 22px rgba(7,63,41,.06); }
+    .issue-card.critical { border-left-color: var(--red); }
+    .issue-card.high { border-left-color: var(--orange); }
+    .issue-card.medium { border-left-color: var(--yellow); }
+    .issue-card.low { border-left-color: var(--blue); }
+    .issue-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+    .issue-title { margin: 0; font-size: 18px; }
+    .meta { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .notes { margin: 10px 0; color: #38463f; line-height: 1.45; white-space: pre-wrap; }
+    .priority-pill { border-radius: 999px; padding: 6px 10px; color: white; font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .priority-critical { background: var(--red); }
+    .priority-high { background: var(--orange); }
+    .priority-medium { background: var(--yellow); color: #3d3100; }
+    .priority-low { background: var(--blue); }
+    .issue-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .resolution-box { display: none; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .resolution-box.active { display: grid; gap: 10px; }
+    .empty { padding: 34px 16px; text-align: center; color: var(--muted); }
+    footer { color: var(--muted); font-size: 13px; margin-top: 24px; text-align: center; }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } .summary-row { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+    @media (max-width: 640px) { .shell { width: min(100% - 24px,1240px); padding-top: 16px; } .hero { padding: 24px; border-radius: 20px; } .summary-row, .field-row { grid-template-columns: 1fr; } .toolbar input, .toolbar select { max-width: none; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="eyebrow">Store Development and Fleet</div>
+      <h1>Hot Issues Tracker</h1>
+      <p class="subtitle">
+        Location-keyed shared issue tracker for items that may require follow-up or escalation. Select a location and the city, state, zip, and map placement are pulled from the Locations tab in Google Sheets.
+      </p>
+      <div class="warning" id="setupWarning">Setup needed: paste your Google Apps Script Web App URL into the SCRIPT_URL field inside this HTML file.</div>
+    </header>
+
+    <div class="summary-row">
+      <div class="summary-card"><strong id="openCount">0</strong><span>Open Items</span></div>
+      <div class="summary-card"><strong id="criticalCount">0</strong><span>Critical / High</span></div>
+      <div class="summary-card"><strong id="resolvedCount">0</strong><span>Resolved Items</span></div>
+      <div class="summary-card"><strong id="totalCount">0</strong><span>Total Logged</span></div>
+    </div>
+
+    <div class="layout">
+      <aside class="panel">
+        <div class="panel-header">
+          <h2>Add Hot Issue</h2>
+          <p>Location is the key field. Log date is added automatically.</p>
+        </div>
+
+        <form id="issueForm">
+          <label>
+            Location
+            <select id="locationCode" name="locationCode" required>
+              <option value="">Loading locations...</option>
+            </select>
+          </label>
+
+          <div class="location-preview" id="locationPreview"></div>
+
+          <div class="field-row">
+            <label>
+              Issue Type
+              <select id="issueType" name="issueType" required>
+                <option value="">Select</option>
+                <option>Facilities</option>
+                <option>Fleet</option>
+                <option>Capital Project</option>
+                <option>Vendor</option>
+                <option>Safety</option>
+                <option>Budget</option>
+                <option>Operational</option>
+                <option>Other</option>
+              </select>
+            </label>
+
+            <label>
+              Priority
+              <select id="priority" name="priority" required>
+                <option value="">Select</option>
+                <option>Critical</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-row">
+            <label>
+              Owner / Follow-Up
+              <input id="owner" name="owner" placeholder="Name or team" />
+            </label>
+
+            <label>
+              Submitted By
+              <input id="submittedBy" name="submittedBy" placeholder="Name" />
+            </label>
+          </div>
+
+          <label>
+            Notes
+            <textarea id="notes" name="notes" placeholder="What happened, why it matters, and what follow-up is needed." required></textarea>
+          </label>
+
+          <button class="btn btn-primary" type="submit">Add Issue</button>
+          <p class="meta">Location details come from the Locations tab. To change city/state/zip or map placement, update that location row in the Sheet.</p>
+        </form>
+      </aside>
+
+      <section class="panel">
+        <nav class="tabs">
+          <button class="tab-button active" data-tab="open" type="button">Open Items</button>
+          <button class="tab-button" data-tab="resolved" type="button">Resolved Items</button>
+        </nav>
+
+        <div class="tab-panel active" id="open">
+          <div class="map-wrap">
+            <div class="map-card">
+              <svg viewBox="0 0 900 520" aria-label="Regional issue map">
+                <rect x="0" y="0" width="900" height="520" fill="#eef5ef"></rect>
+                <path class="state-shape" d="M85 95 L255 80 L295 330 L210 350 L188 480 L80 455 Z"></path>
+                <path class="state-shape" d="M300 85 L640 95 L715 405 L615 465 L472 420 L405 485 L345 390 Z"></path>
+                <path class="state-shape" d="M645 100 L805 110 L842 280 L724 382 Z"></path>
+                <text class="state-label" x="135" y="285">NM</text>
+                <text class="state-label" x="465" y="305">TX</text>
+                <text class="state-label" x="710" y="220">OK</text>
+                <g id="markers"></g>
+              </svg>
+              <div class="legend">
+                <span class="legend-item"><span class="dot" style="background: var(--red)"></span>Critical</span>
+                <span class="legend-item"><span class="dot" style="background: var(--orange)"></span>High</span>
+                <span class="legend-item"><span class="dot" style="background: var(--yellow)"></span>Medium</span>
+                <span class="legend-item"><span class="dot" style="background: var(--blue)"></span>Low</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <input id="searchOpen" placeholder="Search open items..." />
+            <select id="priorityFilter">
+              <option value="">All Priorities</option>
+              <option>Critical</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+
+          <div class="issue-list" id="openList"></div>
+        </div>
+
+        <div class="tab-panel" id="resolved">
+          <div class="toolbar">
+            <input id="searchResolved" placeholder="Search resolved items..." />
+            <select id="resolvedTypeFilter">
+              <option value="">All Types</option>
+              <option>Facilities</option>
+              <option>Fleet</option>
+              <option>Capital Project</option>
+              <option>Vendor</option>
+              <option>Safety</option>
+              <option>Budget</option>
+              <option>Operational</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="issue-list" id="resolvedList"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer>Hot Issues Tracker • Location-keyed through Google Sheets</footer>
+  </main>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhFW0k9Nr4Y77yT04doj_PyWxzHukTi1skhpcZH1FhXY32uDIIJakDZ7qP0y6StF5j/exec";
+
+    let issues = [];
+    let locations = [];
+
+    const form = document.getElementById("issueForm");
+    const locationSelect = document.getElementById("locationCode");
+    const locationPreview = document.getElementById("locationPreview");
+    const openList = document.getElementById("openList");
+    const resolvedList = document.getElementById("resolvedList");
+    const markers = document.getElementById("markers");
+    const setupWarning = document.getElementById("setupWarning");
+
+    const openSearch = document.getElementById("searchOpen");
+    const resolvedSearch = document.getElementById("searchResolved");
+    const priorityFilter = document.getElementById("priorityFilter");
+    const resolvedTypeFilter = document.getElementById("resolvedTypeFilter");
+
+    function isConfigured() {
+      return SCRIPT_URL && !SCRIPT_URL.includes("PASTE_YOUR");
+    }
+
+    function showSetupIfNeeded() {
+      setupWarning.style.display = isConfigured() ? "none" : "block";
+    }
+
+    async function apiGet() {
+      if (!isConfigured()) return { issues: [], locations: [] };
+      const response = await fetch(`${SCRIPT_URL}?action=list`);
+      if (!response.ok) throw new Error("Unable to load tracker data.");
+      return response.json();
+    }
+
+    async function apiPost(payload) {
+      if (!isConfigured()) {
+        alert("Setup needed: paste your Google Apps Script Web App URL into SCRIPT_URL.");
+        return;
+      }
+
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error("Unable to save issue.");
+      return response.json();
+    }
+
+    async function refreshData() {
+      try {
+        const data = await apiGet();
+        issues = data.issues || [];
+        locations = data.locations || [];
+        populateLocations();
+        render();
+      } catch (error) {
+        console.error(error);
+        openList.innerHTML = `<div class="empty">Unable to load tracker data. Check the Apps Script URL, Sheet tabs, headers, and deployment permissions.</div>`;
+      }
+    }
+
+    function populateLocations() {
+      const current = locationSelect.value;
+      locationSelect.innerHTML = `<option value="">Select Location</option>` + locations
+        .slice()
+        .sort((a, b) => String(a.locationCode).localeCompare(String(b.locationCode), undefined, { numeric: true }))
+        .map(loc => `<option value="${escapeHtml(loc.locationCode)}">${escapeHtml(loc.locationCode)} - ${escapeHtml(loc.locationName)} (${escapeHtml(loc.city)}, ${escapeHtml(loc.state)})</option>`)
+        .join("");
+
+      if (current) locationSelect.value = current;
+      updateLocationPreview();
+    }
+
+    function selectedLocation() {
+      return locations.find(loc => String(loc.locationCode) === String(locationSelect.value));
+    }
+
+    function updateLocationPreview() {
+      const loc = selectedLocation();
+      if (!loc) {
+        locationPreview.style.display = "none";
+        locationPreview.innerHTML = "";
+        return;
+      }
+
+      locationPreview.style.display = "block";
+      locationPreview.innerHTML = `
+        <strong>${escapeHtml(loc.locationName)}</strong><br>
+        ${escapeHtml(loc.city)}, ${escapeHtml(loc.state)} ${escapeHtml(loc.zip)}<br>
+        Map position: X ${escapeHtml(loc.mapX || "")}, Y ${escapeHtml(loc.mapY || "")}
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function priorityClass(priority) {
+      return String(priority || "").toLowerCase();
+    }
+
+    function priorityRank(priority) {
+      return { Critical: 1, High: 2, Medium: 3, Low: 4 }[priority] || 5;
+    }
+
+    function mapToSvg(x, y) {
+      return { x: (Number(x || 50) / 100) * 900, y: (Number(y || 50) / 100) * 520 };
+    }
+
+    function issueMatches(issue, query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return true;
+      return [
+        issue.locationCode,
+        issue.locationName,
+        issue.city,
+        issue.state,
+        issue.zip,
+        issue.issueType,
+        issue.priority,
+        issue.owner,
+        issue.notes,
+        issue.submittedBy,
+        issue.resolutionNotes
+      ].some(v => String(v || "").toLowerCase().includes(q));
+    }
+
+    function cardTemplate(issue, resolved = false) {
+      const pClass = priorityClass(issue.priority);
+      const locationLine = `${issue.locationCode || ""} - ${issue.locationName || ""}`.trim();
+      return `
+        <article class="issue-card ${pClass}">
+          <div class="issue-top">
+            <div>
+              <h3 class="issue-title">${escapeHtml(locationLine)}</h3>
+              <div class="meta">
+                ${escapeHtml(issue.city)}, ${escapeHtml(issue.state)} ${escapeHtml(issue.zip)} • ${escapeHtml(issue.issueType)} • Logged ${escapeHtml(issue.logDate)}
+                ${issue.owner ? ` • Owner: ${escapeHtml(issue.owner)}` : ""}
+                ${issue.submittedBy ? ` • Submitted by: ${escapeHtml(issue.submittedBy)}` : ""}
+              </div>
+            </div>
+            <span class="priority-pill priority-${pClass}">${escapeHtml(issue.priority)}</span>
+          </div>
+          <div class="notes">${escapeHtml(issue.notes)}</div>
+          ${resolved ? `
+            <div class="meta"><strong>Resolved:</strong> ${escapeHtml(issue.resolvedDate)}</div>
+            <div class="notes"><strong>Resolution Notes:</strong><br>${escapeHtml(issue.resolutionNotes)}</div>
+            <div class="issue-actions">
+              <button class="btn btn-secondary" onclick="reopenIssue('${issue.id}')">Reopen</button>
+              <button class="btn btn-danger" onclick="deleteIssue('${issue.id}')">Delete</button>
+            </div>
+          ` : `
+            <div class="issue-actions">
+              <button class="btn btn-primary" onclick="toggleResolution('${issue.id}')">Add Resolution / Resolve</button>
+              <button class="btn btn-danger" onclick="deleteIssue('${issue.id}')">Delete</button>
+            </div>
+            <div class="resolution-box" id="resolve-${issue.id}">
+              <textarea placeholder="Resolution notes..." id="resolution-notes-${issue.id}"></textarea>
+              <button class="btn btn-primary" onclick="submitResolution('${issue.id}')">Move to Resolved</button>
+            </div>
+          `}
+        </article>
+      `;
+    }
+
+    function renderMap(openIssues) {
+      markers.innerHTML = "";
+      openIssues.forEach(issue => {
+        const pos = mapToSvg(issue.mapX, issue.mapY);
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", pos.x);
+        circle.setAttribute("cy", pos.y);
+        circle.setAttribute("r", issue.priority === "Critical" ? "13" : "10");
+        circle.setAttribute("class", `marker marker-${priorityClass(issue.priority)}`);
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = `${issue.locationCode} - ${issue.locationName} | ${issue.priority} | ${issue.issueType}`;
+        circle.appendChild(title);
+        markers.appendChild(circle);
+      });
+    }
+
+    function render() {
+      const openIssues = issues.filter(i => i.status === "Open");
+      const resolvedIssues = issues.filter(i => i.status === "Resolved");
+
+      document.getElementById("openCount").textContent = openIssues.length;
+      document.getElementById("resolvedCount").textContent = resolvedIssues.length;
+      document.getElementById("totalCount").textContent = issues.length;
+      document.getElementById("criticalCount").textContent = openIssues.filter(i => i.priority === "Critical" || i.priority === "High").length;
+
+      const filteredOpen = openIssues
+        .filter(issue => !priorityFilter.value || issue.priority === priorityFilter.value)
+        .filter(issue => issueMatches(issue, openSearch.value || ""))
+        .sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority));
+
+      const filteredResolved = resolvedIssues
+        .filter(issue => !resolvedTypeFilter.value || issue.issueType === resolvedTypeFilter.value)
+        .filter(issue => issueMatches(issue, resolvedSearch.value || ""));
+
+      openList.innerHTML = filteredOpen.length
+        ? filteredOpen.map(issue => cardTemplate(issue, false)).join("")
+        : `<div class="empty">No open issues match the current filters.</div>`;
+
+      resolvedList.innerHTML = filteredResolved.length
+        ? filteredResolved.map(issue => cardTemplate(issue, true)).join("")
+        : `<div class="empty">No resolved issues match the current filters.</div>`;
+
+      renderMap(filteredOpen);
+    }
+
+    function toggleResolution(issueId) {
+      const box = document.getElementById(`resolve-${issueId}`);
+      if (box) box.classList.toggle("active");
+    }
+
+    async function submitResolution(issueId) {
+      const textarea = document.getElementById(`resolution-notes-${issueId}`);
+      const notes = textarea?.value?.trim();
+      if (!notes) {
+        alert("Please add resolution notes before moving this item to resolved.");
+        return;
+      }
+      await apiPost({ action: "resolve", id: issueId, resolutionNotes: notes });
+      await refreshData();
+    }
+
+    async function reopenIssue(issueId) {
+      await apiPost({ action: "reopen", id: issueId });
+      await refreshData();
+    }
+
+    async function deleteIssue(issueId) {
+      if (!confirm("Delete this issue?")) return;
+      await apiPost({ action: "delete", id: issueId });
+      await refreshData();
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const result = await apiPost({ action: "add", issue: data });
+        if (result && result.success === false) {
+          alert(result.error || "Unable to submit issue.");
+          return;
+        }
+        form.reset();
+        updateLocationPreview();
+        await refreshData();
+      } catch (error) {
+        console.error(error);
+        alert("Unable to submit issue. Check the Apps Script deployment and permissions.");
+      }
+    });
+
+    locationSelect.addEventListener("change", updateLocationPreview);
+
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(button.dataset.tab).classList.add("active");
+      });
+    });
+
+    [openSearch, resolvedSearch, priorityFilter, resolvedTypeFilter].forEach(el => {
+      el.addEventListener("input", render);
+      el.addEventListener("change", render);
+    });
+
+    showSetupIfNeeded();
+    refreshData();
+    setInterval(refreshData, 60000);
+  </script>
+</body>
+</html>
