@@ -217,37 +217,7 @@
     }
     .toolbar select { max-width: 200px; padding: 9px 10px; }
 
-    /* ── Map ── */
-    .map-wrap {
-      padding: 16px; border-bottom: 1px solid var(--border-light);
-      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%);
-    }
-    .map-card {
-      border: 1px solid var(--border); border-radius: var(--radius-md);
-      overflow: hidden; background: #eef5ef;
-    }
-    svg.region-map { display: block; width: 100%; height: auto; }
-    .state-shape { fill: #cce0d3; stroke: #fff; stroke-width: 3; transition: fill .2s; }
-    .state-shape:hover { fill: #b8d4c0; }
-    .state-label { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 900; fill: rgba(7,63,41,.25); pointer-events: none; }
-    .marker {
-      cursor: pointer; stroke: white; stroke-width: 2.5;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
-      transition: r .15s;
-    }
-    .marker:hover { stroke-width: 3; }
-    .marker-critical { fill: var(--red); }
-    .marker-high { fill: var(--orange); }
-    .marker-medium { fill: var(--yellow); }
-    .marker-low { fill: var(--blue); }
 
-    .legend {
-      display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 14px;
-      background: var(--surface); border-top: 1px solid var(--border-light);
-      font-size: 12px; color: var(--muted);
-    }
-    .legend-item { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
     /* ── Issue Cards ── */
     .issue-list { display: grid; gap: 10px; padding: 14px; }
@@ -395,15 +365,7 @@
             <label>
               Issue Type
               <select id="issueType" name="issueType" required>
-                <option value="">Select</option>
-                <option>Facilities</option>
-                <option>Fleet</option>
-                <option>Capital Project</option>
-                <option>Vendor</option>
-                <option>Safety</option>
-                <option>Budget</option>
-                <option>Operational</option>
-                <option>Other</option>
+                <option value="">Loading...</option>
               </select>
             </label>
             <label>
@@ -453,26 +415,6 @@
         </nav>
 
         <div class="tab-panel active" id="open">
-          <div class="map-wrap">
-            <div class="map-card">
-              <svg class="region-map" viewBox="0 0 900 520" aria-label="Regional issue map">
-                <rect x="0" y="0" width="900" height="520" fill="#eef5ef"></rect>
-                <path class="state-shape" d="M85 95 L255 80 L295 330 L210 350 L188 480 L80 455 Z"></path>
-                <path class="state-shape" d="M300 85 L640 95 L715 405 L615 465 L472 420 L405 485 L345 390 Z"></path>
-                <path class="state-shape" d="M645 100 L805 110 L842 280 L724 382 Z"></path>
-                <text class="state-label" x="135" y="285">NM</text>
-                <text class="state-label" x="465" y="305">TX</text>
-                <text class="state-label" x="710" y="220">OK</text>
-                <g id="markers"></g>
-              </svg>
-              <div class="legend">
-                <span class="legend-item"><span class="dot" style="background:var(--red)"></span>Critical</span>
-                <span class="legend-item"><span class="dot" style="background:var(--orange)"></span>High</span>
-                <span class="legend-item"><span class="dot" style="background:var(--yellow)"></span>Medium</span>
-                <span class="legend-item"><span class="dot" style="background:var(--blue)"></span>Low</span>
-              </div>
-            </div>
-          </div>
 
           <div class="toolbar">
             <input id="searchOpen" placeholder="Search open items..." />
@@ -492,14 +434,6 @@
             <input id="searchResolved" placeholder="Search resolved items..." />
             <select id="resolvedTypeFilter">
               <option value="">All Types</option>
-              <option>Facilities</option>
-              <option>Fleet</option>
-              <option>Capital Project</option>
-              <option>Vendor</option>
-              <option>Safety</option>
-              <option>Budget</option>
-              <option>Operational</option>
-              <option>Other</option>
             </select>
           </div>
           <div class="issue-list" id="resolvedList"></div>
@@ -515,6 +449,7 @@
 
     let issues = [];
     let locations = [];
+    let issueTypes = [];
 
     const form = document.getElementById("issueForm");
     const submitBtn = document.getElementById("submitBtn");
@@ -522,7 +457,6 @@
     const locationPreview = document.getElementById("locationPreview");
     const openList = document.getElementById("openList");
     const resolvedList = document.getElementById("resolvedList");
-    const markers = document.getElementById("markers");
     const setupWarning = document.getElementById("setupWarning");
     const openSearch = document.getElementById("searchOpen");
     const resolvedSearch = document.getElementById("searchResolved");
@@ -579,7 +513,9 @@
         const data = await apiGet();
         issues = data.issues || [];
         locations = data.locations || [];
+        issueTypes = data.issueTypes || [];
         populateLocations();
+        populateIssueTypes();
         render();
       } catch (error) {
         console.error(error);
@@ -599,7 +535,17 @@
       updateLocationPreview();
     }
 
-    function selectedLocation() {
+    function populateIssueTypes() {
+      const issueTypeSelect = document.getElementById("issueType");
+      const resolvedTypeFilterEl = document.getElementById("resolvedTypeFilter");
+      const types = issueTypes.length ? issueTypes : ["Facilities","Fleet","Capital Project","Vendor","Safety","Budget","Operational","Other"];
+
+      const options = types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+      issueTypeSelect.innerHTML = `<option value="">Select</option>` + options;
+      resolvedTypeFilterEl.innerHTML = `<option value="">All Types</option>` + options;
+    }
+
+
       return locations.find(loc => String(loc.locationCode) === String(locationSelect.value));
     }
 
@@ -634,10 +580,6 @@
 
     function priorityRank(priority) {
       return { Critical: 1, High: 2, Medium: 3, Low: 4 }[priority] || 5;
-    }
-
-    function mapToSvg(x, y) {
-      return { x: (Number(x || 50) / 100) * 900, y: (Number(y || 50) / 100) * 520 };
     }
 
     function issueMatches(issue, query) {
@@ -697,23 +639,6 @@
       `;
     }
 
-    /* ── Map ── */
-    function renderMap(openIssues) {
-      markers.innerHTML = "";
-      openIssues.forEach(issue => {
-        const pos = mapToSvg(issue.mapX, issue.mapY);
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", pos.x);
-        circle.setAttribute("cy", pos.y);
-        circle.setAttribute("r", issue.priority === "Critical" ? "13" : "10");
-        circle.setAttribute("class", `marker marker-${priorityClass(issue.priority)}`);
-        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-        title.textContent = `${issue.locationCode} — ${issue.locationName} | ${issue.priority} | ${issue.issueType}`;
-        circle.appendChild(title);
-        markers.appendChild(circle);
-      });
-    }
-
     /* ── Main render ── */
     function render() {
       const openIssues = issues.filter(i => i.status === "Open");
@@ -750,9 +675,6 @@
       resolvedList.innerHTML = filteredResolved.length
         ? filteredResolved.map(issue => cardTemplate(issue, true)).join("")
         : `<div class="empty"><span class="empty-icon">🎉</span>No resolved issues yet.</div>`;
-
-      renderMap(filteredOpen);
-    }
 
     /* ── Actions ── */
     function toggleResolution(issueId) {
