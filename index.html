@@ -4,149 +4,380 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hot Issues Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;0,9..40,800;1,9..40,400&family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&display=swap" rel="stylesheet">
   <style>
     :root {
       --mccoys-green: #0b5d38;
       --mccoys-green-dark: #073f29;
       --mccoys-green-soft: #e8f3ed;
       --mccoys-yellow: #f4c542;
+      --mccoys-yellow-light: #fef8e1;
       --red: #c62828;
+      --red-soft: #ffeaea;
       --orange: #ef7d00;
+      --orange-soft: #fff3e0;
       --yellow: #d6a600;
+      --yellow-soft: #fff9e0;
       --blue: #2463a6;
-      --ink: #1f2a24;
-      --muted: #62736a;
-      --border: #dfe8e2;
-      --shadow: 0 18px 45px rgba(7, 63, 41, 0.10);
+      --blue-soft: #e3edf7;
+      --ink: #1a2b21;
+      --muted: #5a6e62;
+      --faint: #8a9b90;
+      --border: #dce5df;
+      --border-light: #edf1ee;
+      --surface: #ffffff;
+      --surface-alt: #f7faf8;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --shadow-sm: 0 2px 8px rgba(7,63,41,.05);
+      --shadow-md: 0 8px 24px rgba(7,63,41,.08);
+      --shadow-lg: 0 20px 50px rgba(7,63,41,.10);
     }
-    * { box-sizing: border-box; }
+
+    * { box-sizing: border-box; margin: 0; }
+
     body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'DM Sans', system-ui, sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at top left, rgba(244, 197, 66, 0.22), transparent 32rem),
-        linear-gradient(135deg, #f8fbf6 0%, #eef5ef 100%);
+      background: #f0f4f1;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
-    .shell { width: min(1240px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 48px; }
+
+    /* ── Shell ── */
+    .shell { width: min(1320px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+
+    /* ── Hero ── */
     .hero {
-      background: linear-gradient(135deg, var(--mccoys-green) 0%, var(--mccoys-green-dark) 100%);
-      color: white; border-radius: 26px; padding: 30px 34px; box-shadow: var(--shadow);
-      position: relative; overflow: hidden;
+      background: linear-gradient(145deg, var(--mccoys-green) 0%, #064a2d 55%, var(--mccoys-green-dark) 100%);
+      color: white; border-radius: var(--radius-lg); padding: 36px 40px 32px;
+      box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ""; position: absolute; right: -40px; top: -60px;
+      width: 280px; height: 280px; background: var(--mccoys-yellow);
+      border-radius: 50%; opacity: 0.13; pointer-events: none;
     }
     .hero::after {
-      content: ""; position: absolute; right: -70px; top: -80px; width: 250px; height: 250px;
-      background: var(--mccoys-yellow); border-radius: 50%; opacity: 0.22;
+      content: ""; position: absolute; left: 30%; bottom: -100px;
+      width: 400px; height: 200px; background: rgba(255,255,255,.04);
+      border-radius: 50%; pointer-events: none;
     }
     .eyebrow {
-      display: inline-flex; background: rgba(244, 197, 66, 0.18);
-      border: 1px solid rgba(244, 197, 66, 0.45); color: #fff7cf;
-      border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 800; margin-bottom: 14px;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(244,197,66,.14); border: 1px solid rgba(244,197,66,.30);
+      color: var(--mccoys-yellow); border-radius: 999px; padding: 6px 14px;
+      font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 16px;
     }
-    h1 { margin: 0; font-size: clamp(32px, 5vw, 50px); line-height: 1.02; letter-spacing: -0.04em; }
-    .subtitle { margin: 14px 0 0; font-size: 16px; line-height: 1.55; color: rgba(255,255,255,.86); max-width: 850px; }
+    .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mccoys-yellow); }
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(28px, 4.5vw, 48px); font-weight: 900;
+      line-height: 1.05; letter-spacing: -0.03em;
+    }
+    .subtitle {
+      margin: 12px 0 0; font-size: 15px; line-height: 1.6;
+      color: rgba(255,255,255,.72); max-width: 720px; font-weight: 300;
+    }
     .warning {
-      background: #fff6d8; border: 1px solid #f0d16b; color: #4b3b09;
-      border-radius: 16px; padding: 14px 16px; margin: 16px 0 0; font-weight: 700; display: none;
+      background: var(--mccoys-yellow-light); border: 1px solid #edcf5c;
+      color: #5a4400; border-radius: var(--radius-sm); padding: 12px 16px;
+      margin: 16px 0 0; font-weight: 600; font-size: 14px; display: none;
     }
-    .summary-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin: 18px 0; }
+
+    /* ── Summary Cards ── */
+    .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
     .summary-card {
-      background: rgba(255,255,255,.94); border: 1px solid var(--border);
-      border-radius: 18px; padding: 18px; box-shadow: 0 8px 24px rgba(7,63,41,.08);
+      background: var(--surface); border: 1px solid var(--border-light);
+      border-radius: var(--radius-md); padding: 20px 18px;
+      box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
     }
-    .summary-card strong { display: block; font-size: 30px; color: var(--mccoys-green); margin-bottom: 4px; }
-    .summary-card span { color: var(--muted); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
-    .layout { display: grid; grid-template-columns: 410px minmax(0,1fr); gap: 18px; align-items: start; }
-    .panel { background: white; border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 12px 30px rgba(7,63,41,.07); overflow: hidden; }
-    .panel-header { padding: 18px 20px; border-bottom: 1px solid var(--border); background: #fbfcfa; }
-    .panel-header h2 { margin: 0 0 4px; font-size: 20px; }
-    .panel-header p { margin: 0; color: var(--muted); font-size: 14px; }
-    form { padding: 18px 20px 20px; display: grid; gap: 12px; }
-    label { display: grid; gap: 6px; font-size: 13px; font-weight: 900; color: var(--mccoys-green-dark); }
+    .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .summary-card .card-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px; font-size: 16px;
+    }
+    .summary-card .card-icon.green { background: var(--mccoys-green-soft); color: var(--mccoys-green); }
+    .summary-card .card-icon.red { background: var(--red-soft); color: var(--red); }
+    .summary-card .card-icon.blue { background: var(--blue-soft); color: var(--blue); }
+    .summary-card .card-icon.yellow { background: var(--mccoys-yellow-light); color: #8a6d00; }
+    .summary-card strong {
+      display: block; font-family: 'Fraunces', serif;
+      font-size: 32px; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 4px;
+    }
+    .summary-card span {
+      color: var(--muted); font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+
+    /* ── Layout ── */
+    .layout { display: grid; grid-template-columns: 400px minmax(0,1fr); gap: 16px; align-items: start; }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--surface); border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden;
+    }
+    .panel-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border-light);
+      background: var(--surface);
+    }
+    .panel-header h2 {
+      font-family: 'Fraunces', serif; font-size: 20px; font-weight: 800;
+      margin-bottom: 4px; color: var(--ink);
+    }
+    .panel-header p { color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+    /* ── Form ── */
+    form { padding: 20px 24px 24px; display: grid; gap: 14px; }
+    label {
+      display: grid; gap: 5px; font-size: 12px; font-weight: 700;
+      color: var(--mccoys-green-dark); text-transform: uppercase; letter-spacing: .04em;
+    }
     input, select, textarea {
-      width: 100%; border: 1px solid #cfdcd4; border-radius: 12px;
-      padding: 11px 12px; font: inherit; color: var(--ink); background: white;
+      width: 100%; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 12px;
+      font: inherit; font-size: 14px; color: var(--ink); background: var(--surface);
+      transition: border-color .15s, box-shadow .15s;
     }
-    textarea { min-height: 96px; resize: vertical; }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: var(--mccoys-green);
+      box-shadow: 0 0 0 3px rgba(11,93,56,.12);
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .location-preview {
-      background: var(--mccoys-green-soft); border: 1px solid #cde0d3; color: var(--mccoys-green-dark);
-      border-radius: 14px; padding: 12px; font-size: 13px; line-height: 1.45; display: none;
+      background: var(--mccoys-green-soft); border: 1px solid #c4dac9;
+      color: var(--mccoys-green-dark); border-radius: var(--radius-sm);
+      padding: 12px 14px; font-size: 13px; line-height: 1.5; display: none;
     }
-    .btn { border: 0; cursor: pointer; border-radius: 12px; padding: 11px 14px; font-weight: 900; font-size: 14px; }
-    .btn-primary { background: var(--mccoys-yellow); color: #123522; }
-    .btn-secondary { background: white; color: var(--mccoys-green); border: 1px solid var(--border); }
-    .btn-danger { background: #ffe8e8; color: var(--red); border: 1px solid #ffc7c7; }
-    .tabs { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px; background: white; border-bottom: 1px solid var(--border); }
+    .form-footer { color: var(--faint); font-size: 12px; line-height: 1.45; text-transform: none; font-weight: 400; }
+
+    /* ── Buttons ── */
+    .btn {
+      border: 0; cursor: pointer; border-radius: var(--radius-sm);
+      padding: 10px 16px; font-weight: 700; font-size: 13px;
+      transition: transform .12s, box-shadow .12s, background .15s;
+      letter-spacing: .01em;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary {
+      background: var(--mccoys-yellow); color: #1a3022;
+      box-shadow: 0 2px 8px rgba(244,197,66,.3);
+    }
+    .btn-primary:hover { background: #e8b930; }
+    .btn-secondary { background: var(--surface-alt); color: var(--mccoys-green); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--mccoys-green-soft); }
+    .btn-danger { background: var(--red-soft); color: var(--red); border: 1px solid #ffc7c7; }
+    .btn-danger:hover { background: #ffd6d6; }
+    .btn-full { width: 100%; justify-content: center; display: flex; align-items: center; gap: 6px; padding: 12px 16px; font-size: 14px; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; gap: 4px; padding: 8px; margin: 0;
+      background: var(--surface-alt); border-bottom: 1px solid var(--border-light);
+    }
     .tab-button {
-      border: 0; cursor: pointer; background: transparent; color: var(--mccoys-green-dark);
-      padding: 11px 14px; border-radius: 12px; font-weight: 900; font-size: 14px;
+      border: 0; cursor: pointer; background: transparent;
+      color: var(--muted); padding: 10px 18px; border-radius: var(--radius-sm);
+      font-weight: 700; font-size: 13px; transition: all .15s;
+      display: flex; align-items: center; gap: 8px;
     }
-    .tab-button.active { background: var(--mccoys-green); color: white; box-shadow: inset 0 -3px 0 var(--mccoys-yellow); }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); background: #fbfcfa; }
-    .toolbar input, .toolbar select { max-width: 230px; padding: 9px 10px; border-radius: 10px; }
+    .tab-button:hover { color: var(--ink); background: rgba(11,93,56,.04); }
+    .tab-button.active {
+      background: var(--mccoys-green); color: white;
+      box-shadow: 0 2px 8px rgba(11,93,56,.2);
+    }
+    .tab-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 22px; height: 22px; border-radius: 999px; font-size: 11px;
+      font-weight: 800; padding: 0 6px;
+    }
+    .tab-button.active .tab-count { background: rgba(255,255,255,.2); color: white; }
+    .tab-button:not(.active) .tab-count { background: var(--border); color: var(--muted); }
+
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
-    .map-wrap { padding: 16px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg,#fff,#f7faf7); }
-    .map-card { border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: #eef5ef; }
-    svg { display: block; width: 100%; height: auto; }
-    .state-shape { fill: #d9e9de; stroke: #fff; stroke-width: 3; }
-    .state-label { font-size: 28px; font-weight: 900; fill: rgba(7,63,41,.38); }
-    .marker { cursor: pointer; stroke: white; stroke-width: 3; filter: drop-shadow(0 3px 5px rgba(0,0,0,.25)); }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      padding: 12px 16px; border-bottom: 1px solid var(--border-light);
+      background: var(--surface);
+    }
+    .toolbar input {
+      flex: 1; min-width: 160px; padding: 9px 12px 9px 34px;
+      border-radius: var(--radius-sm); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238a9b90' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: 10px center;
+    }
+    .toolbar select { max-width: 200px; padding: 9px 10px; }
+
+    /* ── Map ── */
+    .map-wrap {
+      padding: 16px; border-bottom: 1px solid var(--border-light);
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%);
+    }
+    .map-card {
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      overflow: hidden; background: #eef5ef;
+    }
+    svg.region-map { display: block; width: 100%; height: auto; }
+    .state-shape { fill: #cce0d3; stroke: #fff; stroke-width: 3; transition: fill .2s; }
+    .state-shape:hover { fill: #b8d4c0; }
+    .state-label { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 900; fill: rgba(7,63,41,.25); pointer-events: none; }
+    .marker {
+      cursor: pointer; stroke: white; stroke-width: 2.5;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
+      transition: r .15s;
+    }
+    .marker:hover { stroke-width: 3; }
     .marker-critical { fill: var(--red); }
     .marker-high { fill: var(--orange); }
     .marker-medium { fill: var(--yellow); }
     .marker-low { fill: var(--blue); }
-    .legend { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 14px; background: white; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
-    .legend-item { display: inline-flex; gap: 6px; align-items: center; font-weight: 800; }
-    .dot { width: 12px; height: 12px; border-radius: 999px; display: inline-block; }
-    .issue-list { display: grid; gap: 12px; padding: 16px; }
-    .issue-card { border: 1px solid var(--border); border-left: 6px solid var(--mccoys-green); border-radius: 16px; padding: 15px; background: white; box-shadow: 0 8px 22px rgba(7,63,41,.06); }
+
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 14px;
+      background: var(--surface); border-top: 1px solid var(--border-light);
+      font-size: 12px; color: var(--muted);
+    }
+    .legend-item { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+    /* ── Issue Cards ── */
+    .issue-list { display: grid; gap: 10px; padding: 14px; }
+    .issue-card {
+      border: 1px solid var(--border-light); border-left: 5px solid var(--mccoys-green);
+      border-radius: var(--radius-md); padding: 16px 18px; background: var(--surface);
+      box-shadow: var(--shadow-sm); transition: box-shadow .2s, transform .15s;
+    }
+    .issue-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
     .issue-card.critical { border-left-color: var(--red); }
     .issue-card.high { border-left-color: var(--orange); }
     .issue-card.medium { border-left-color: var(--yellow); }
     .issue-card.low { border-left-color: var(--blue); }
-    .issue-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
-    .issue-title { margin: 0; font-size: 18px; }
-    .meta { color: var(--muted); font-size: 13px; line-height: 1.45; }
-    .notes { margin: 10px 0; color: #38463f; line-height: 1.45; white-space: pre-wrap; }
-    .priority-pill { border-radius: 999px; padding: 6px 10px; color: white; font-size: 12px; font-weight: 900; white-space: nowrap; }
+
+    .issue-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 6px; }
+    .issue-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 800; line-height: 1.25; }
+    .meta { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; }
+    .meta-item { display: inline-flex; align-items: center; gap: 4px; }
+    .notes { margin: 10px 0; color: #38463f; font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
+    .priority-pill {
+      border-radius: 999px; padding: 4px 10px; color: white;
+      font-size: 11px; font-weight: 800; white-space: nowrap;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
     .priority-critical { background: var(--red); }
     .priority-high { background: var(--orange); }
     .priority-medium { background: var(--yellow); color: #3d3100; }
     .priority-low { background: var(--blue); }
-    .issue-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .resolution-box { display: none; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+
+    .issue-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light); }
+    .resolution-box { display: none; margin-top: 12px; border-top: 1px solid var(--border-light); padding-top: 12px; }
     .resolution-box.active { display: grid; gap: 10px; }
-    .empty { padding: 34px 16px; text-align: center; color: var(--muted); }
-    footer { color: var(--muted); font-size: 13px; margin-top: 24px; text-align: center; }
-    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } .summary-row { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-    @media (max-width: 640px) { .shell { width: min(100% - 24px,1240px); padding-top: 16px; } .hero { padding: 24px; border-radius: 20px; } .summary-row, .field-row { grid-template-columns: 1fr; } .toolbar input, .toolbar select { max-width: none; } }
+    .resolved-badge {
+      display: inline-flex; align-items: center; gap: 5px; background: var(--mccoys-green-soft);
+      color: var(--mccoys-green); border-radius: 999px; padding: 4px 10px;
+      font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    .empty {
+      padding: 40px 20px; text-align: center; color: var(--faint); font-size: 14px;
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: .5; display: block; }
+
+    /* ── Toast ── */
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: grid; gap: 8px; }
+    .toast {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 18px;
+      box-shadow: var(--shadow-lg); font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; gap: 8px; min-width: 260px;
+      animation: slideIn .3s ease-out, fadeOut .3s ease-in forwards;
+      animation-delay: 0s, 2.7s;
+    }
+    .toast.success { border-left: 4px solid var(--mccoys-green); }
+    .toast.error { border-left: 4px solid var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid var(--border); border-top-color: var(--mccoys-green);
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-overlay {
+      display: none; position: absolute; inset: 0; background: rgba(255,255,255,.85);
+      z-index: 10; align-items: center; justify-content: center; border-radius: var(--radius-lg);
+    }
+    .loading-overlay.active { display: flex; }
+
+    /* ── Footer ── */
+    footer { color: var(--faint); font-size: 12px; margin-top: 28px; text-align: center; letter-spacing: .02em; }
+    footer a { color: var(--mccoys-green); text-decoration: none; font-weight: 600; }
+
+    /* ── Responsive ── */
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .summary-row { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 20px, 1320px); padding-top: 12px; }
+      .hero { padding: 24px 20px; border-radius: var(--radius-md); }
+      .summary-row, .field-row { grid-template-columns: 1fr; }
+      .toolbar { flex-direction: column; }
+      .toolbar input, .toolbar select { max-width: none; width: 100%; }
+      .panel-header { padding: 16px 18px; }
+      form { padding: 16px 18px 20px; }
+    }
   </style>
 </head>
 <body>
+  <div class="toast-container" id="toastContainer"></div>
+
   <main class="shell">
     <header class="hero">
-      <div class="eyebrow">Store Development and Fleet</div>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> Store Development &amp; Fleet</div>
       <h1>Hot Issues Tracker</h1>
       <p class="subtitle">
-        Location-keyed shared issue tracker for items that may require follow-up or escalation. Select a location and the city, state, zip, and map placement are pulled from the Locations tab in Google Sheets.
+        Location-keyed issue tracker for items needing follow-up or escalation.
+        Select a location and the city, state, zip, and map placement are pulled automatically from Google Sheets.
       </p>
       <div class="warning" id="setupWarning">Setup needed: paste your Google Apps Script Web App URL into the SCRIPT_URL field inside this HTML file.</div>
     </header>
 
     <div class="summary-row">
-      <div class="summary-card"><strong id="openCount">0</strong><span>Open Items</span></div>
-      <div class="summary-card"><strong id="criticalCount">0</strong><span>Critical / High</span></div>
-      <div class="summary-card"><strong id="resolvedCount">0</strong><span>Resolved Items</span></div>
-      <div class="summary-card"><strong id="totalCount">0</strong><span>Total Logged</span></div>
+      <div class="summary-card">
+        <div class="card-icon green">📋</div>
+        <strong id="openCount">0</strong><span>Open Items</span>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon red">🔥</div>
+        <strong id="criticalCount">0</strong><span>Critical / High</span>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon blue">✅</div>
+        <strong id="resolvedCount">0</strong><span>Resolved</span>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon yellow">📊</div>
+        <strong id="totalCount">0</strong><span>Total Logged</span>
+      </div>
     </div>
 
     <div class="layout">
-      <aside class="panel">
+      <!-- ── FORM PANEL ── -->
+      <aside class="panel" style="position:relative;">
         <div class="panel-header">
-          <h2>Add Hot Issue</h2>
+          <h2>Log New Issue</h2>
           <p>Location is the key field. Log date is added automatically.</p>
         </div>
 
@@ -175,7 +406,6 @@
                 <option>Other</option>
               </select>
             </label>
-
             <label>
               Priority
               <select id="priority" name="priority" required>
@@ -193,10 +423,9 @@
               Owner / Follow-Up
               <input id="owner" name="owner" placeholder="Name or team" />
             </label>
-
             <label>
               Submitted By
-              <input id="submittedBy" name="submittedBy" placeholder="Name" />
+              <input id="submittedBy" name="submittedBy" placeholder="Your name" />
             </label>
           </div>
 
@@ -205,21 +434,28 @@
             <textarea id="notes" name="notes" placeholder="What happened, why it matters, and what follow-up is needed." required></textarea>
           </label>
 
-          <button class="btn btn-primary" type="submit">Add Issue</button>
-          <p class="meta">Location details come from the Locations tab. To change city/state/zip or map placement, update that location row in the Sheet.</p>
+          <button class="btn btn-primary btn-full" type="submit" id="submitBtn">
+            Add Issue
+          </button>
+          <p class="form-footer">Location details come from the Locations tab. To change city/state/zip or map placement, update that row in the Sheet.</p>
         </form>
       </aside>
 
+      <!-- ── ISSUES PANEL ── -->
       <section class="panel">
         <nav class="tabs">
-          <button class="tab-button active" data-tab="open" type="button">Open Items</button>
-          <button class="tab-button" data-tab="resolved" type="button">Resolved Items</button>
+          <button class="tab-button active" data-tab="open" type="button">
+            Open Items <span class="tab-count" id="openTabCount">0</span>
+          </button>
+          <button class="tab-button" data-tab="resolved" type="button">
+            Resolved <span class="tab-count" id="resolvedTabCount">0</span>
+          </button>
         </nav>
 
         <div class="tab-panel active" id="open">
           <div class="map-wrap">
             <div class="map-card">
-              <svg viewBox="0 0 900 520" aria-label="Regional issue map">
+              <svg class="region-map" viewBox="0 0 900 520" aria-label="Regional issue map">
                 <rect x="0" y="0" width="900" height="520" fill="#eef5ef"></rect>
                 <path class="state-shape" d="M85 95 L255 80 L295 330 L210 350 L188 480 L80 455 Z"></path>
                 <path class="state-shape" d="M300 85 L640 95 L715 405 L615 465 L472 420 L405 485 L345 390 Z"></path>
@@ -230,10 +466,10 @@
                 <g id="markers"></g>
               </svg>
               <div class="legend">
-                <span class="legend-item"><span class="dot" style="background: var(--red)"></span>Critical</span>
-                <span class="legend-item"><span class="dot" style="background: var(--orange)"></span>High</span>
-                <span class="legend-item"><span class="dot" style="background: var(--yellow)"></span>Medium</span>
-                <span class="legend-item"><span class="dot" style="background: var(--blue)"></span>Low</span>
+                <span class="legend-item"><span class="dot" style="background:var(--red)"></span>Critical</span>
+                <span class="legend-item"><span class="dot" style="background:var(--orange)"></span>High</span>
+                <span class="legend-item"><span class="dot" style="background:var(--yellow)"></span>Medium</span>
+                <span class="legend-item"><span class="dot" style="background:var(--blue)"></span>Low</span>
               </div>
             </div>
           </div>
@@ -248,7 +484,6 @@
               <option>Low</option>
             </select>
           </div>
-
           <div class="issue-list" id="openList"></div>
         </div>
 
@@ -272,7 +507,7 @@
       </section>
     </div>
 
-    <footer>Hot Issues Tracker • Location-keyed through Google Sheets</footer>
+    <footer>Hot Issues Tracker &bull; Location-keyed through <a href="#">Google Sheets</a></footer>
   </main>
 
   <script>
@@ -282,26 +517,40 @@
     let locations = [];
 
     const form = document.getElementById("issueForm");
+    const submitBtn = document.getElementById("submitBtn");
     const locationSelect = document.getElementById("locationCode");
     const locationPreview = document.getElementById("locationPreview");
     const openList = document.getElementById("openList");
     const resolvedList = document.getElementById("resolvedList");
     const markers = document.getElementById("markers");
     const setupWarning = document.getElementById("setupWarning");
-
     const openSearch = document.getElementById("searchOpen");
     const resolvedSearch = document.getElementById("searchResolved");
     const priorityFilter = document.getElementById("priorityFilter");
     const resolvedTypeFilter = document.getElementById("resolvedTypeFilter");
+    const openTabCount = document.getElementById("openTabCount");
+    const resolvedTabCount = document.getElementById("resolvedTabCount");
 
+    /* ── Toast notifications ── */
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === "success" ? "✓" : "✕"}</span> ${escapeHtml(message)}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+    }
+
+    /* ── Config check (FIXED — original had a syntax bug here) ── */
     function isConfigured() {
-      return SCRIPT_URL && !SCRIPT_URL.includes("PASTE_YOUR");
+      return SCRIPT_URL && !SCRIPT_URL.includes("YOUR_SCRIPT_URL_HERE");
     }
 
     function showSetupIfNeeded() {
       setupWarning.style.display = isConfigured() ? "none" : "block";
     }
 
+    /* ── API ── */
     async function apiGet() {
       if (!isConfigured()) return { issues: [], locations: [] };
       const response = await fetch(`${SCRIPT_URL}?action=list`);
@@ -311,21 +560,20 @@
 
     async function apiPost(payload) {
       if (!isConfigured()) {
-        alert("Setup needed: paste your Google Apps Script Web App URL into SCRIPT_URL.");
+        showToast("Setup needed: paste your Google Apps Script Web App URL into SCRIPT_URL.", "error");
         return;
       }
-
       const response = await fetch(SCRIPT_URL, {
         method: "POST",
         mode: "cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-
       if (!response.ok) throw new Error("Unable to save issue.");
       return response.json();
     }
 
+    /* ── Data refresh ── */
     async function refreshData() {
       try {
         const data = await apiGet();
@@ -335,18 +583,18 @@
         render();
       } catch (error) {
         console.error(error);
-        openList.innerHTML = `<div class="empty">Unable to load tracker data. Check the Apps Script URL, Sheet tabs, headers, and deployment permissions.</div>`;
+        openList.innerHTML = `<div class="empty"><span class="empty-icon">⚠️</span>Unable to load tracker data.<br>Check the Apps Script URL, Sheet tabs, headers, and deployment permissions.</div>`;
       }
     }
 
+    /* ── Locations dropdown ── */
     function populateLocations() {
       const current = locationSelect.value;
       locationSelect.innerHTML = `<option value="">Select Location</option>` + locations
         .slice()
         .sort((a, b) => String(a.locationCode).localeCompare(String(b.locationCode), undefined, { numeric: true }))
-        .map(loc => `<option value="${escapeHtml(loc.locationCode)}">${escapeHtml(loc.locationCode)} - ${escapeHtml(loc.locationName)} (${escapeHtml(loc.city)}, ${escapeHtml(loc.state)})</option>`)
+        .map(loc => `<option value="${escapeHtml(loc.locationCode)}">${escapeHtml(loc.locationCode)} — ${escapeHtml(loc.locationName)} (${escapeHtml(loc.city)}, ${escapeHtml(loc.state)})</option>`)
         .join("");
-
       if (current) locationSelect.value = current;
       updateLocationPreview();
     }
@@ -362,15 +610,15 @@
         locationPreview.innerHTML = "";
         return;
       }
-
       locationPreview.style.display = "block";
       locationPreview.innerHTML = `
         <strong>${escapeHtml(loc.locationName)}</strong><br>
         ${escapeHtml(loc.city)}, ${escapeHtml(loc.state)} ${escapeHtml(loc.zip)}<br>
-        Map position: X ${escapeHtml(loc.mapX || "")}, Y ${escapeHtml(loc.mapY || "")}
+        <span style="color:var(--faint);font-size:12px">Map: X ${escapeHtml(loc.mapX || "—")}, Y ${escapeHtml(loc.mapY || "—")}</span>
       `;
     }
 
+    /* ── Utilities ── */
     function escapeHtml(value) {
       return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -396,58 +644,60 @@
       const q = query.trim().toLowerCase();
       if (!q) return true;
       return [
-        issue.locationCode,
-        issue.locationName,
-        issue.city,
-        issue.state,
-        issue.zip,
-        issue.issueType,
-        issue.priority,
-        issue.owner,
-        issue.notes,
-        issue.submittedBy,
-        issue.resolutionNotes
+        issue.locationCode, issue.locationName, issue.city, issue.state,
+        issue.zip, issue.issueType, issue.priority, issue.owner,
+        issue.notes, issue.submittedBy, issue.resolutionNotes
       ].some(v => String(v || "").toLowerCase().includes(q));
     }
 
+    /* ── Card template ── */
     function cardTemplate(issue, resolved = false) {
       const pClass = priorityClass(issue.priority);
-      const locationLine = `${issue.locationCode || ""} - ${issue.locationName || ""}`.trim();
+      const locationLine = `${issue.locationCode || ""} — ${issue.locationName || ""}`.trim();
       return `
         <article class="issue-card ${pClass}">
           <div class="issue-top">
             <div>
               <h3 class="issue-title">${escapeHtml(locationLine)}</h3>
               <div class="meta">
-                ${escapeHtml(issue.city)}, ${escapeHtml(issue.state)} ${escapeHtml(issue.zip)} • ${escapeHtml(issue.issueType)} • Logged ${escapeHtml(issue.logDate)}
-                ${issue.owner ? ` • Owner: ${escapeHtml(issue.owner)}` : ""}
-                ${issue.submittedBy ? ` • Submitted by: ${escapeHtml(issue.submittedBy)}` : ""}
+                <div class="meta-row">
+                  <span class="meta-item">📍 ${escapeHtml(issue.city)}, ${escapeHtml(issue.state)} ${escapeHtml(issue.zip)}</span>
+                  <span class="meta-item">🏷️ ${escapeHtml(issue.issueType)}</span>
+                  <span class="meta-item">📅 ${escapeHtml(issue.logDate)}</span>
+                </div>
+                <div class="meta-row">
+                  ${issue.owner ? `<span class="meta-item">👤 ${escapeHtml(issue.owner)}</span>` : ""}
+                  ${issue.submittedBy ? `<span class="meta-item">✏️ ${escapeHtml(issue.submittedBy)}</span>` : ""}
+                </div>
               </div>
             </div>
             <span class="priority-pill priority-${pClass}">${escapeHtml(issue.priority)}</span>
           </div>
-          <div class="notes">${escapeHtml(issue.notes)}</div>
+          ${issue.notes ? `<div class="notes">${escapeHtml(issue.notes)}</div>` : ""}
           ${resolved ? `
-            <div class="meta"><strong>Resolved:</strong> ${escapeHtml(issue.resolvedDate)}</div>
-            <div class="notes"><strong>Resolution Notes:</strong><br>${escapeHtml(issue.resolutionNotes)}</div>
+            <div style="margin-top:8px;">
+              <span class="resolved-badge">✓ Resolved ${escapeHtml(issue.resolvedDate)}</span>
+            </div>
+            ${issue.resolutionNotes ? `<div class="notes" style="margin-top:8px;background:var(--mccoys-green-soft);padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;"><strong style="color:var(--mccoys-green)">Resolution:</strong> ${escapeHtml(issue.resolutionNotes)}</div>` : ""}
             <div class="issue-actions">
-              <button class="btn btn-secondary" onclick="reopenIssue('${issue.id}')">Reopen</button>
+              <button class="btn btn-secondary" onclick="reopenIssue('${issue.id}')">↩ Reopen</button>
               <button class="btn btn-danger" onclick="deleteIssue('${issue.id}')">Delete</button>
             </div>
           ` : `
             <div class="issue-actions">
-              <button class="btn btn-primary" onclick="toggleResolution('${issue.id}')">Add Resolution / Resolve</button>
+              <button class="btn btn-primary" onclick="toggleResolution('${issue.id}')">✓ Resolve</button>
               <button class="btn btn-danger" onclick="deleteIssue('${issue.id}')">Delete</button>
             </div>
             <div class="resolution-box" id="resolve-${issue.id}">
-              <textarea placeholder="Resolution notes..." id="resolution-notes-${issue.id}"></textarea>
-              <button class="btn btn-primary" onclick="submitResolution('${issue.id}')">Move to Resolved</button>
+              <textarea placeholder="What was done to resolve this issue?" id="resolution-notes-${issue.id}" style="font-size:14px;"></textarea>
+              <button class="btn btn-primary" onclick="submitResolution('${issue.id}')">✓ Move to Resolved</button>
             </div>
           `}
         </article>
       `;
     }
 
+    /* ── Map ── */
     function renderMap(openIssues) {
       markers.innerHTML = "";
       openIssues.forEach(issue => {
@@ -458,21 +708,32 @@
         circle.setAttribute("r", issue.priority === "Critical" ? "13" : "10");
         circle.setAttribute("class", `marker marker-${priorityClass(issue.priority)}`);
         const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-        title.textContent = `${issue.locationCode} - ${issue.locationName} | ${issue.priority} | ${issue.issueType}`;
+        title.textContent = `${issue.locationCode} — ${issue.locationName} | ${issue.priority} | ${issue.issueType}`;
         circle.appendChild(title);
         markers.appendChild(circle);
       });
     }
 
+    /* ── Main render ── */
     function render() {
       const openIssues = issues.filter(i => i.status === "Open");
       const resolvedIssues = issues.filter(i => i.status === "Resolved");
 
-      document.getElementById("openCount").textContent = openIssues.length;
-      document.getElementById("resolvedCount").textContent = resolvedIssues.length;
-      document.getElementById("totalCount").textContent = issues.length;
-      document.getElementById("criticalCount").textContent = openIssues.filter(i => i.priority === "Critical" || i.priority === "High").length;
+      // Summary counts
+      const openCount = openIssues.length;
+      const critHighCount = openIssues.filter(i => i.priority === "Critical" || i.priority === "High").length;
+      const resolvedCount = resolvedIssues.length;
 
+      document.getElementById("openCount").textContent = openCount;
+      document.getElementById("criticalCount").textContent = critHighCount;
+      document.getElementById("resolvedCount").textContent = resolvedCount;
+      document.getElementById("totalCount").textContent = issues.length;
+
+      // Tab counts
+      openTabCount.textContent = openCount;
+      resolvedTabCount.textContent = resolvedCount;
+
+      // Filter + sort
       const filteredOpen = openIssues
         .filter(issue => !priorityFilter.value || issue.priority === priorityFilter.value)
         .filter(issue => issueMatches(issue, openSearch.value || ""))
@@ -484,15 +745,16 @@
 
       openList.innerHTML = filteredOpen.length
         ? filteredOpen.map(issue => cardTemplate(issue, false)).join("")
-        : `<div class="empty">No open issues match the current filters.</div>`;
+        : `<div class="empty"><span class="empty-icon">📭</span>No open issues match the current filters.</div>`;
 
       resolvedList.innerHTML = filteredResolved.length
         ? filteredResolved.map(issue => cardTemplate(issue, true)).join("")
-        : `<div class="empty">No resolved issues match the current filters.</div>`;
+        : `<div class="empty"><span class="empty-icon">🎉</span>No resolved issues yet.</div>`;
 
       renderMap(filteredOpen);
     }
 
+    /* ── Actions ── */
     function toggleResolution(issueId) {
       const box = document.getElementById(`resolve-${issueId}`);
       if (box) box.classList.toggle("active");
@@ -502,43 +764,67 @@
       const textarea = document.getElementById(`resolution-notes-${issueId}`);
       const notes = textarea?.value?.trim();
       if (!notes) {
-        alert("Please add resolution notes before moving this item to resolved.");
+        showToast("Please add resolution notes before resolving.", "error");
         return;
       }
-      await apiPost({ action: "resolve", id: issueId, resolutionNotes: notes });
-      await refreshData();
+      try {
+        await apiPost({ action: "resolve", id: issueId, resolutionNotes: notes });
+        showToast("Issue resolved successfully.");
+        await refreshData();
+      } catch (e) {
+        showToast("Unable to resolve issue. Try again.", "error");
+      }
     }
 
     async function reopenIssue(issueId) {
-      await apiPost({ action: "reopen", id: issueId });
-      await refreshData();
+      try {
+        await apiPost({ action: "reopen", id: issueId });
+        showToast("Issue reopened.");
+        await refreshData();
+      } catch (e) {
+        showToast("Unable to reopen issue. Try again.", "error");
+      }
     }
 
     async function deleteIssue(issueId) {
-      if (!confirm("Delete this issue?")) return;
-      await apiPost({ action: "delete", id: issueId });
-      await refreshData();
+      if (!confirm("Delete this issue? This cannot be undone.")) return;
+      try {
+        await apiPost({ action: "delete", id: issueId });
+        showToast("Issue deleted.");
+        await refreshData();
+      } catch (e) {
+        showToast("Unable to delete issue. Try again.", "error");
+      }
     }
 
+    /* ── Form submit ── */
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
 
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+
       try {
         const result = await apiPost({ action: "add", issue: data });
         if (result && result.success === false) {
-          alert(result.error || "Unable to submit issue.");
+          showToast(result.error || "Unable to submit issue.", "error");
           return;
         }
         form.reset();
         updateLocationPreview();
+        showToast("Issue logged successfully!");
         await refreshData();
       } catch (error) {
         console.error(error);
-        alert("Unable to submit issue. Check the Apps Script deployment and permissions.");
+        showToast("Unable to submit. Check Apps Script deployment and permissions.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Add Issue';
       }
     });
 
+    /* ── Event listeners ── */
     locationSelect.addEventListener("change", updateLocationPreview);
 
     document.querySelectorAll(".tab-button").forEach(button => {
@@ -555,6 +841,7 @@
       el.addEventListener("change", render);
     });
 
+    /* ── Init ── */
     showSetupIfNeeded();
     refreshData();
     setInterval(refreshData, 60000);
