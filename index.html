@@ -3,546 +3,1046 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hot Issues Tracker</title>
+  <title>Store Development & Fleet Report Hub — McCoy's</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;0,9..40,800;1,9..40,400&family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
     :root {
-      --green: #0b5d38;
-      --green-dark: #073f29;
-      --green-soft: #e8f3ed;
-      --yellow: #f4c542;
-      --yellow-light: #fef8e1;
-      --red: #c62828;
-      --red-soft: #ffeaea;
-      --orange: #ef7d00;
-      --blue: #2463a6;
-      --blue-soft: #e3edf7;
-      --ink: #1a2b21;
-      --muted: #5a6e62;
-      --faint: #8a9b90;
-      --border: #dce5df;
-      --border-light: #edf1ee;
-      --surface: #ffffff;
-      --surface-alt: #f7faf8;
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
-      --shadow-sm: 0 2px 8px rgba(7,63,41,.05);
-      --shadow-md: 0 8px 24px rgba(7,63,41,.08);
-      --shadow-lg: 0 20px 50px rgba(7,63,41,.10);
+      --green:        #0b5d38;
+      --green-dark:   #073f29;
+      --green-mid:    #1a7a4a;
+      --green-soft:   #e6f2eb;
+      --green-xsoft:  #f2f8f4;
+      --gold:         #e8a800;
+      --gold-light:   #fff4cc;
+      --gold-mid:     #f9d660;
+      --ink:          #0f1f17;
+      --muted:        #5a7060;
+      --border:       #d5e4da;
+      --card:         #ffffff;
+      --bg:           #f4f8f5;
+      --radius-sm:    10px;
+      --radius-md:    16px;
+      --radius-lg:    24px;
+      --radius-xl:    32px;
+      --shadow-sm:    0 2px 8px rgba(7,63,41,0.06);
+      --shadow-md:    0 8px 24px rgba(7,63,41,0.09);
+      --shadow-lg:    0 20px 48px rgba(7,63,41,0.12);
+      --transition:   all 0.2s cubic-bezier(0.4,0,0.2,1);
     }
-    * { box-sizing: border-box; margin: 0; }
-    body { font-family: 'DM Sans', system-ui, sans-serif; color: var(--ink); background: #f0f4f1; min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-    .shell { width: min(1320px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .hero {
-      background: linear-gradient(145deg, var(--green) 0%, #064a2d 55%, var(--green-dark) 100%);
-      color: white; border-radius: var(--radius-lg); padding: 36px 40px 32px;
-      box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
-    .hero::before {
-      content: ""; position: absolute; right: -40px; top: -60px;
-      width: 280px; height: 280px; background: var(--yellow);
-      border-radius: 50%; opacity: 0.13; pointer-events: none;
+
+    /* ─── SIDEBAR LAYOUT ─── */
+    .layout {
+      display: flex;
+      min-height: 100vh;
     }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(244,197,66,.14); border: 1px solid rgba(244,197,66,.30);
-      color: var(--yellow); border-radius: 999px; padding: 6px 14px;
-      font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 16px;
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--green-dark);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
     }
-    .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); }
-    h1 { font-family: 'Fraunces', serif; font-size: clamp(28px, 4.5vw, 48px); font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; }
-    .subtitle { margin: 12px 0 0; font-size: 15px; line-height: 1.6; color: rgba(255,255,255,.72); max-width: 720px; font-weight: 300; }
-    .warning { background: var(--yellow-light); border: 1px solid #edcf5c; color: #5a4400; border-radius: var(--radius-sm); padding: 12px 16px; margin: 16px 0 0; font-weight: 600; font-size: 14px; display: none; }
 
-    .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
-    .summary-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 20px 18px; box-shadow: var(--shadow-sm); transition: transform .2s, box-shadow .2s; }
-    .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .card-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; font-size: 16px; }
-    .card-icon.green { background: var(--green-soft); }
-    .card-icon.red { background: var(--red-soft); }
-    .card-icon.blue { background: var(--blue-soft); }
-    .card-icon.yellow { background: var(--yellow-light); }
-    .summary-card strong { display: block; font-family: 'Fraunces', serif; font-size: 32px; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 4px; }
-    .summary-card span { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .sidebar-brand {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
-    .layout { display: grid; grid-template-columns: 400px minmax(0,1fr); gap: 16px; align-items: start; }
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold);
+      color: var(--green-dark);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
 
-    .panel { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; }
-    .panel-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); }
-    .panel-header h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
-    .panel-header p { color: var(--muted); font-size: 13px; line-height: 1.4; }
+    .brand-badge svg { width: 12px; height: 12px; }
 
-    form { padding: 20px 24px 24px; display: grid; gap: 14px; }
-    label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; color: var(--green-dark); text-transform: uppercase; letter-spacing: .04em; }
-    input, select, textarea { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); transition: border-color .15s, box-shadow .15s; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(11,93,56,.12); }
-    textarea { min-height: 88px; resize: vertical; }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .location-preview { background: var(--green-soft); border: 1px solid #c4dac9; color: var(--green-dark); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; line-height: 1.5; display: none; }
-    .form-footer { color: var(--faint); font-size: 12px; line-height: 1.45; text-transform: none; font-weight: 400; }
+    .sidebar-brand h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
 
-    .btn { border: 0; cursor: pointer; border-radius: var(--radius-sm); padding: 10px 16px; font-weight: 700; font-size: 13px; transition: transform .12s, background .15s; letter-spacing: .01em; }
-    .btn:active { transform: scale(.97); }
-    .btn-primary { background: var(--yellow); color: #1a3022; box-shadow: 0 2px 8px rgba(244,197,66,.3); }
-    .btn-primary:hover { background: #e8b930; }
-    .btn-secondary { background: var(--surface-alt); color: var(--green); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: var(--green-soft); }
-    .btn-danger { background: var(--red-soft); color: var(--red); border: 1px solid #ffc7c7; }
-    .btn-danger:hover { background: #ffd6d6; }
-    .btn-full { width: 100%; justify-content: center; display: flex; align-items: center; gap: 6px; padding: 12px 16px; font-size: 14px; }
+    .sidebar-brand p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
 
-    .tabs { display: flex; gap: 4px; padding: 8px; background: var(--surface-alt); border-bottom: 1px solid var(--border-light); }
-    .tab-button { border: 0; cursor: pointer; background: transparent; color: var(--muted); padding: 10px 18px; border-radius: var(--radius-sm); font-weight: 700; font-size: 13px; transition: all .15s; display: flex; align-items: center; gap: 8px; }
-    .tab-button:hover { color: var(--ink); background: rgba(11,93,56,.04); }
-    .tab-button.active { background: var(--green); color: white; box-shadow: 0 2px 8px rgba(11,93,56,.2); }
-    .tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 0 6px; }
-    .tab-button.active .tab-count { background: rgba(255,255,255,.2); color: white; }
-    .tab-button:not(.active) .tab-count { background: var(--border); color: var(--muted); }
+    .sidebar-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
+    .stat-box {
+      background: rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .stat-box strong {
+      display: block;
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--gold-mid);
+      line-height: 1;
+    }
+
+    .stat-box span {
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      padding: 16px 12px;
+      flex: 1;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.65);
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      text-align: left;
+      transition: var(--transition);
+      margin-bottom: 2px;
+      position: relative;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+
+    .nav-btn.active {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .nav-btn.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 60%;
+      background: var(--gold);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .nav-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+
+    .nav-btn.active .nav-icon {
+      background: rgba(255,255,255,0.12);
+    }
+
+    .nav-count {
+      margin-left: auto;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .nav-btn.active .nav-count {
+      background: var(--gold);
+      color: var(--green-dark);
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .main {
+      flex: 1;
+      overflow-x: hidden;
+      min-width: 0;
+    }
+
+    /* ─── TOPBAR ─── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(244,248,245,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .topbar-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px;
+      color: var(--green-dark);
+      flex: 1;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 320px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+    }
+
+    #search-input {
+      width: 100%;
+      padding: 9px 12px 9px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    #search-input:focus {
+      border-color: var(--green-mid);
+      box-shadow: 0 0 0 3px rgba(11,93,56,0.1);
+    }
+
+    #search-input::placeholder { color: var(--muted); }
+
+    /* ─── CONTENT AREA ─── */
+    .content {
+      padding: 32px;
+    }
+
+    /* ─── PANEL HEADER ─── */
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+
+    .panel-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .category-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .category-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .panel-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+
+    .panel-header p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .report-count-badge {
+      flex-shrink: 0;
+      background: var(--green-soft);
+      border: 1px solid var(--border);
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+
+    #hot-items .report-card::before {
+      background: linear-gradient(90deg, #e8400a, #f9a825);
+    }
+    #hot-items .report-link {
+      background: #c73208;
+    }
+    #hot-items .report-link:hover {
+      background: #a82806;
+    }
+
+    /* ─── REPORT GRID ─── */
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ─── REPORT CARD ─── */
+    .report-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 0.3s ease both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .report-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .report-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+      border-color: #b5d4c0;
+    }
+
+    .card-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .pill-status {
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid rgba(11,93,56,0.15);
+    }
+
+    .pill-status::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green-mid);
+      display: inline-block;
+    }
+
+    .pill-cadence {
+      background: var(--gold-light);
+      color: #7a5700;
+      border: 1px solid rgba(232,168,0,0.2);
+    }
+
+    .report-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .report-card p {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .report-link {
+      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      background: var(--green);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      transition: var(--transition);
+      align-self: flex-start;
+    }
+
+    .report-link:hover {
+      background: var(--green-dark);
+      gap: 12px;
+    }
+
+    .report-link svg {
+      width: 14px;
+      height: 14px;
+      transition: var(--transition);
+    }
+
+    /* ─── TAB PANEL ─── */
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-light); background: var(--surface); }
-    .toolbar input { flex: 1; min-width: 160px; padding: 9px 12px; }
-    .toolbar select { max-width: 200px; padding: 9px 10px; }
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 64px 32px;
+      color: var(--muted);
+    }
 
-    .issue-list { display: grid; gap: 10px; padding: 14px; }
-    .issue-card { border: 1px solid var(--border-light); border-left: 5px solid var(--green); border-radius: var(--radius-md); padding: 16px 18px; background: var(--surface); box-shadow: var(--shadow-sm); transition: box-shadow .2s, transform .15s; }
-    .issue-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-    .issue-card.critical { border-left-color: var(--red); }
-    .issue-card.high { border-left-color: var(--orange); }
-    .issue-card.medium { border-left-color: #d6a600; }
-    .issue-card.low { border-left-color: var(--blue); }
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.3;
+      margin-bottom: 16px;
+    }
 
-    .issue-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 6px; }
-    .issue-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 800; line-height: 1.25; }
-    .meta { color: var(--muted); font-size: 12px; line-height: 1.5; }
-    .meta-row { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; }
-    .notes { margin: 10px 0; color: #38463f; font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
-    .priority-pill { border-radius: 999px; padding: 4px 10px; color: white; font-size: 11px; font-weight: 800; white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
-    .priority-critical { background: var(--red); }
-    .priority-high { background: var(--orange); }
-    .priority-medium { background: #d6a600; color: #3d3100; }
-    .priority-low { background: var(--blue); }
+    .empty-state h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
 
-    .issue-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light); }
-    .resolution-box { display: none; margin-top: 12px; border-top: 1px solid var(--border-light); padding-top: 12px; }
-    .resolution-box.active { display: grid; gap: 10px; }
-    .resolved-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--green-soft); color: var(--green); border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    /* ─── MOBILE TOGGLE ─── */
+    .mobile-nav-toggle {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      font-size: 22px;
+      align-items: center;
+      justify-content: center;
+    }
 
-    .empty { padding: 40px 20px; text-align: center; color: var(--faint); font-size: 14px; }
-    .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: .5; display: block; }
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100%;
+        z-index: 50;
+        transition: left 0.3s ease;
+      }
 
-    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: grid; gap: 8px; pointer-events: none; }
-    .toast { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 18px; box-shadow: var(--shadow-lg); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 260px; animation: slideIn .3s ease-out, fadeOut .3s ease-in 2.7s forwards; }
-    .toast.success { border-left: 4px solid var(--green); }
-    .toast.error { border-left: 4px solid var(--red); }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+      .sidebar.open { left: 0; }
 
-    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .6s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 49;
+      }
 
-    footer { color: var(--faint); font-size: 12px; margin-top: 28px; text-align: center; letter-spacing: .02em; }
+      .sidebar-overlay.open { display: block; }
 
-    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } .summary-row { grid-template-columns: repeat(2,1fr); } }
-    @media (max-width: 640px) { .shell { width: min(100% - 20px, 1320px); padding-top: 12px; } .hero { padding: 24px 20px; border-radius: var(--radius-md); } .summary-row, .field-row { grid-template-columns: 1fr; } .toolbar { flex-direction: column; } .toolbar input, .toolbar select { max-width: none; width: 100%; } }
+      .mobile-nav-toggle { display: flex; }
+
+      .topbar { padding: 12px 20px; }
+      .content { padding: 20px; }
+
+      .panel-header { flex-direction: column; }
+    }
+
+    @media (max-width: 540px) {
+      .report-grid { grid-template-columns: 1fr; }
+      .search-wrap { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <div class="toast-container" id="toastContainer"></div>
 
-  <main class="shell">
-    <header class="hero">
-      <div class="eyebrow"><span class="eyebrow-dot"></span> Store Development &amp; Fleet</div>
-      <h1>Hot Issues Tracker</h1>
-      <p class="subtitle">Location-keyed issue tracker for items needing follow-up or escalation. Select a location and details are pulled automatically from Google Sheets.</p>
-      <div class="warning" id="setupWarning">Setup needed: paste your Google Apps Script Web App URL into the SCRIPT_URL field inside this HTML file.</div>
-    </header>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
-    <div class="summary-row">
-      <div class="summary-card"><div class="card-icon green">📋</div><strong id="openCount">0</strong><span>Open Items</span></div>
-      <div class="summary-card"><div class="card-icon red">🔥</div><strong id="criticalCount">0</strong><span>Critical / High</span></div>
-      <div class="summary-card"><div class="card-icon blue">✅</div><strong id="resolvedCount">0</strong><span>Resolved</span></div>
-      <div class="summary-card"><div class="card-icon yellow">📊</div><strong id="totalCount">0</strong><span>Total Logged</span></div>
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+        McCoy's Building Supply
+      </div>
+      <h1>Store Dev &amp; Fleet Hub</h1>
+      <p>Centralized reporting across fleet, facilities, budgeting &amp; capital projects.</p>
     </div>
 
-    <div class="layout">
-      <aside class="panel">
+    <div class="sidebar-stats">
+      <div class="stat-box"><strong>13</strong><span>Reports</span></div>
+      <div class="stat-box"><strong>6</strong><span>Categories</span></div>
+      <div class="stat-box"><strong>7</strong><span>Weekly</span></div>
+      <div class="stat-box"><strong>5</strong><span>Monthly</span></div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Report Categories</div>
+
+      <button class="nav-btn" data-tab="hot-items" style="color:#fff;">
+        <span class="nav-icon">🔥</span>
+        Hot Items
+        <span class="nav-count">1</span>
+      </button>
+
+      <button class="nav-btn active" data-tab="fleet-efficiency">
+        <span class="nav-icon">⚡</span>
+        Fleet Efficiency
+        <span class="nav-count">2</span>
+      </button>
+
+      <button class="nav-btn" data-tab="fleet-operations">
+        <span class="nav-icon">🚚</span>
+        Fleet Operations
+        <span class="nav-count">3</span>
+      </button>
+
+      <button class="nav-btn" data-tab="facilities-operations">
+        <span class="nav-icon">🏗️</span>
+        Facilities Operations
+        <span class="nav-count">2</span>
+      </button>
+
+      <button class="nav-btn" data-tab="budgeting-and-forecasting">
+        <span class="nav-icon">📊</span>
+        Budgeting &amp; Forecasting
+        <span class="nav-count">2</span>
+      </button>
+
+      <button class="nav-btn" data-tab="capital-projects">
+        <span class="nav-icon">🏛️</span>
+        Capital Projects
+        <span class="nav-count">3</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      Store Development &amp; Fleet Report Hub<br>
+      Links open in a new tab
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <!-- Sticky topbar -->
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-label">Fleet Efficiency</span>
+
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search reports…" autocomplete="off" />
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ── HOT ITEMS ── -->
+      <section id="hot-items" class="tab-panel">
         <div class="panel-header">
-          <h2>Log New Issue</h2>
-          <p>Location is the key field. Log date is added automatically.</p>
+          <div>
+            <div class="panel-eyebrow"><span class="category-dot" style="background:#e8400a;"></span><span class="category-label">Hot Items</span></div>
+            <h2>Hot Items</h2>
+            <p>Priority issues and escalated items requiring immediate attention.</p>
+          </div>
+          <span class="report-count-badge">1 report</span>
         </div>
-        <form id="issueForm">
-          <label>
-            Location
-            <select id="locationCode" name="locationCode" required>
-              <option value="">Loading locations...</option>
-            </select>
-          </label>
-          <div class="location-preview" id="locationPreview"></div>
-          <div class="field-row">
-            <label>
-              Issue Type
-              <select id="issueType" name="issueType" required>
-                <option value="">Loading...</option>
-              </select>
-            </label>
-            <label>
-              Priority
-              <select id="priority" name="priority" required>
-                <option value="">Select</option>
-                <option>Critical</option>
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-              </select>
-            </label>
-          </div>
-          <div class="field-row">
-            <label>Owner / Follow-Up<input id="owner" name="owner" placeholder="Name or team" /></label>
-            <label>Submitted By<input id="submittedBy" name="submittedBy" placeholder="Your name" /></label>
-          </div>
-          <label>
-            Notes
-            <textarea id="notes" name="notes" placeholder="What happened, why it matters, and what follow-up is needed." required></textarea>
-          </label>
-          <button class="btn btn-primary btn-full" type="submit" id="submitBtn">Add Issue</button>
-          <p class="form-footer">Location details come from the Locations tab. To change city/state/zip, update that row in the Sheet.</p>
-        </form>
-      </aside>
+        <div class="report-grid">
 
-      <section class="panel">
-        <nav class="tabs">
-          <button class="tab-button active" data-tab="open" type="button">Open Items <span class="tab-count" id="openTabCount">0</span></button>
-          <button class="tab-button" data-tab="resolved" type="button">Resolved <span class="tab-count" id="resolvedTabCount">0</span></button>
-        </nav>
+          <article class="report-card" data-title="hot issues tracker" style="--accent:#e8400a;">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill" style="background:#fff0eb;color:#8a2000;border:1px solid rgba(232,64,10,0.2);font-size:11px;font-weight:700;letter-spacing:.03em;padding:4px 10px;border-radius:999px;">🔥 High Priority</span>
+            </div>
+            <h3>Hot Issues Tracker</h3>
+            <p>Tracks high-priority operational issues across departments, surfacing escalated items that require immediate follow-up and resolution.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Hot-Issues-Tracker/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-        <div class="tab-panel active" id="open">
-          <div class="toolbar">
-            <input id="searchOpen" placeholder="Search open items..." />
-            <select id="priorityFilter">
-              <option value="">All Priorities</option>
-              <option>Critical</option>
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
-            </select>
-          </div>
-          <div class="issue-list" id="openList"></div>
-        </div>
-
-        <div class="tab-panel" id="resolved">
-          <div class="toolbar">
-            <input id="searchResolved" placeholder="Search resolved items..." />
-            <select id="resolvedTypeFilter">
-              <option value="">All Types</option>
-            </select>
-          </div>
-          <div class="issue-list" id="resolvedList"></div>
         </div>
       </section>
-    </div>
 
-    <footer>Hot Issues Tracker &bull; Location-keyed through Google Sheets</footer>
-  </main>
+      <!-- ── FLEET EFFICIENCY ── -->
+      <section id="fleet-efficiency" class="tab-panel active">
+        <div class="panel-header">
+          <div>
+            <div class="panel-eyebrow"><span class="category-dot"></span><span class="category-label">Fleet Efficiency</span></div>
+            <h2>Fleet Efficiency</h2>
+            <p>Utilization analysis across forklift and truck assets.</p>
+          </div>
+          <span class="report-count-badge">2 reports</span>
+        </div>
+        <div class="report-grid">
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhFW0k9Nr4Y77yT04doj_PyWxzHukTi1skhpcZH1FhXY32uDIIJakDZ7qP0y6StF5j/exec";
+          <article class="report-card" data-title="forklift utilization report">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Monthly Update</span>
+            </div>
+            <h3>Forklift Utilization Report</h3>
+            <p>Analyzes forklift utilization across locations, identifying underutilized assets and opportunities for redeployment, reduction, or lifecycle optimization.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Forklift-Utilization-Report/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    let issues = [];
-    let locations = [];
-    let issueTypes = [];
+          <article class="report-card" data-title="truck utilization">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Monthly Update</span>
+            </div>
+            <h3>Truck Utilization</h3>
+            <p>Evaluates truck utilization across routes and locations using deliveries, miles, and time metrics to identify inefficiencies and optimization opportunities.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Fleet-Utilization-TWRE/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    const form = document.getElementById("issueForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const locationSelect = document.getElementById("locationCode");
-    const locationPreview = document.getElementById("locationPreview");
-    const openList = document.getElementById("openList");
-    const resolvedList = document.getElementById("resolvedList");
-    const setupWarning = document.getElementById("setupWarning");
-    const openSearch = document.getElementById("searchOpen");
-    const resolvedSearch = document.getElementById("searchResolved");
-    const priorityFilter = document.getElementById("priorityFilter");
-    const resolvedTypeFilter = document.getElementById("resolvedTypeFilter");
-    const openTabCount = document.getElementById("openTabCount");
-    const resolvedTabCount = document.getElementById("resolvedTabCount");
+        </div>
+      </section>
 
-    function showToast(message, type) {
-      type = type || "success";
-      const container = document.getElementById("toastContainer");
-      const toast = document.createElement("div");
-      toast.className = "toast " + type;
-      toast.innerHTML = "<span>" + (type === "success" ? "✓" : "✕") + "</span> " + escapeHtml(message);
-      container.appendChild(toast);
-      setTimeout(function() { toast.remove(); }, 3200);
-    }
+      <!-- ── FLEET OPERATIONS ── -->
+      <section id="fleet-operations" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-eyebrow"><span class="category-dot"></span><span class="category-label">Fleet Operations</span></div>
+            <h2>Fleet Operations</h2>
+            <p>Work orders, PM compliance, and year-over-year spend.</p>
+          </div>
+          <span class="report-count-badge">3 reports</span>
+        </div>
+        <div class="report-grid">
 
-    function isConfigured() {
-      return SCRIPT_URL && SCRIPT_URL.indexOf("YOUR_SCRIPT_URL_HERE") === -1;
-    }
+          <article class="report-card" data-title="fleet work order follow-up">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Weekly Update</span>
+            </div>
+            <h3>Fleet Work Order Follow-Up</h3>
+            <p>Tracks fleet work order aging, follow-up compliance, and missed actions to support timely maintenance execution and accountability.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Fleet-WO-Follow-Up/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    function showSetupIfNeeded() {
-      setupWarning.style.display = isConfigured() ? "none" : "block";
-    }
+          <article class="report-card" data-title="pm compliance dashboard">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Weekly Follow-Up</span>
+            </div>
+            <h3>PM Compliance Dashboard</h3>
+            <p>Monitors preventive maintenance compliance, identifies overdue assets, and highlights open work orders tied to missed PM intervals.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/PM-Compliance-Dashboard/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    async function apiGet() {
-      if (!isConfigured()) return { issues: [], locations: [], issueTypes: [] };
-      const response = await fetch(SCRIPT_URL + "?action=list");
-      if (!response.ok) throw new Error("Unable to load tracker data.");
-      return response.json();
-    }
+          <article class="report-card" data-title="fleet spend yoy report">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Monthly Update</span>
+            </div>
+            <h3>Fleet Spend YOY Report</h3>
+            <p>Tracks year-over-year fleet spend trends, highlighting changes in maintenance, parts, and operating costs.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Fleet-Spend-Report-YOY/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    async function apiPost(payload) {
-      if (!isConfigured()) {
-        showToast("Setup needed: paste your Google Apps Script Web App URL into SCRIPT_URL.", "error");
-        return;
-      }
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-      if (!response.ok) throw new Error("Unable to save issue.");
-      return response.json();
-    }
+        </div>
+      </section>
 
-    async function refreshData() {
-      try {
-        const data = await apiGet();
-        issues = data.issues || [];
-        locations = data.locations || [];
-        issueTypes = data.issueTypes || [];
-        populateLocations();
-        populateIssueTypes();
-        render();
-      } catch (error) {
-        console.error(error);
-        openList.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span>Unable to load tracker data. Check the Apps Script URL, Sheet tabs, headers, and deployment permissions.</div>';
-      }
-    }
+      <!-- ── FACILITIES OPERATIONS ── -->
+      <section id="facilities-operations" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-eyebrow"><span class="category-dot"></span><span class="category-label">Facilities Operations</span></div>
+            <h2>Facilities Operations</h2>
+            <p>Work order tracking and facilities spend analysis.</p>
+          </div>
+          <span class="report-count-badge">2 reports</span>
+        </div>
+        <div class="report-grid">
 
-    function populateLocations() {
-      const current = locationSelect.value;
-      locationSelect.innerHTML = '<option value="">Select Location</option>' +
-        locations
-          .slice()
-          .sort(function(a, b) { return String(a.locationCode).localeCompare(String(b.locationCode), undefined, { numeric: true }); })
-          .map(function(loc) {
-            return '<option value="' + escapeHtml(loc.locationCode) + '">' + escapeHtml(loc.locationCode) + ' — ' + escapeHtml(loc.locationName) + ' (' + escapeHtml(loc.city) + ', ' + escapeHtml(loc.state) + ')</option>';
-          })
-          .join("");
-      if (current) locationSelect.value = current;
-      updateLocationPreview();
-    }
+          <article class="report-card" data-title="facilities work order follow-up">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Weekly Update</span>
+            </div>
+            <h3>Facilities Work Order Follow-Up</h3>
+            <p>Tracks facilities work order aging, follow-up activity, and missed actions to support timely resolution across locations.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Facilities-WO-Follow-Up-Report/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    function populateIssueTypes() {
-      const issueTypeSelect = document.getElementById("issueType");
-      const types = issueTypes.length ? issueTypes : ["Facilities", "Fleet", "Capital Project", "Vendor", "Safety", "Budget", "Operational", "Other"];
-      const options = types.map(function(t) { return '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>'; }).join("");
-      issueTypeSelect.innerHTML = '<option value="">Select</option>' + options;
-      resolvedTypeFilter.innerHTML = '<option value="">All Types</option>' + options;
-    }
+          <article class="report-card" data-title="facilities spend dashboard">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Monthly Update</span>
+            </div>
+            <h3>Facilities Spend Dashboard</h3>
+            <p>Tracks facilities-related spend across locations, highlighting cost trends, outliers, and opportunities for improved budget control.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Facility-Spend-Dashboard/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    function selectedLocation() {
-      return locations.find(function(loc) { return String(loc.locationCode) === String(locationSelect.value); });
-    }
+        </div>
+      </section>
 
-    function updateLocationPreview() {
-      const loc = selectedLocation();
-      if (!loc) {
-        locationPreview.style.display = "none";
-        locationPreview.innerHTML = "";
-        return;
-      }
-      locationPreview.style.display = "block";
-      locationPreview.innerHTML =
-        '<strong>' + escapeHtml(loc.locationName) + '</strong><br>' +
-        escapeHtml(loc.city) + ', ' + escapeHtml(loc.state) + ' ' + escapeHtml(loc.zip);
-    }
+      <!-- ── BUDGETING & FORECASTING ── -->
+      <section id="budgeting-and-forecasting" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-eyebrow"><span class="category-dot"></span><span class="category-label">Budgeting &amp; Forecasting</span></div>
+            <h2>Budgeting &amp; Forecasting</h2>
+            <p>Fuel trends and strategic spend analysis.</p>
+          </div>
+          <span class="report-count-badge">2 reports</span>
+        </div>
+        <div class="report-grid">
 
-    function escapeHtml(value) {
-      return String(value == null ? "" : value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+          <article class="report-card" data-title="mtd fuel trends">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Weekly Update</span>
+            </div>
+            <h3>MTD Fuel Trends</h3>
+            <p>Tracks month-to-date fuel spend, cost per gallon trends, and volume patterns to monitor budget performance and project end-of-month fuel expense.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/MTD-Fuel-Trends/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    function priorityClass(priority) {
-      return String(priority || "").toLowerCase();
-    }
+          <article class="report-card" data-title="additional spend proposal">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Strategic Analysis</span>
+            </div>
+            <h3>Additional Spend Proposal</h3>
+            <p>Evaluates pre-purchase scenarios ahead of emissions changes, including cost impacts, timing strategies, and ROI considerations.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Purchase-REV-Pricing-Emissions/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    function priorityRank(priority) {
-      return { Critical: 1, High: 2, Medium: 3, Low: 4 }[priority] || 5;
-    }
+        </div>
+      </section>
 
-    function issueMatches(issue, query) {
-      const q = query.trim().toLowerCase();
-      if (!q) return true;
-      return [issue.locationCode, issue.locationName, issue.city, issue.state, issue.zip, issue.issueType, issue.priority, issue.owner, issue.notes, issue.submittedBy, issue.resolutionNotes]
-        .some(function(v) { return String(v || "").toLowerCase().indexOf(q) !== -1; });
-    }
+      <!-- ── CAPITAL PROJECTS ── -->
+      <section id="capital-projects" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-eyebrow"><span class="category-dot"></span><span class="category-label">Capital Projects</span></div>
+            <h2>Capital Projects</h2>
+            <p>Active builds, project schedules, and capital proposals.</p>
+          </div>
+          <span class="report-count-badge">3 reports</span>
+        </div>
+        <div class="report-grid">
 
-    function cardTemplate(issue, resolved) {
-      const pClass = priorityClass(issue.priority);
-      const locationLine = escapeHtml((issue.locationCode || "") + " — " + (issue.locationName || ""));
-      const resolvedSection = resolved
-        ? '<div style="margin-top:8px;"><span class="resolved-badge">✓ Resolved ' + escapeHtml(issue.resolvedDate) + '</span></div>' +
-          (issue.resolutionNotes ? '<div class="notes" style="margin-top:8px;background:var(--green-soft);padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;"><strong style="color:var(--green)">Resolution:</strong> ' + escapeHtml(issue.resolutionNotes) + '</div>' : '') +
-          '<div class="issue-actions">' +
-          '<button class="btn btn-secondary" onclick="reopenIssue(\'' + issue.id + '\')">↩ Reopen</button>' +
-          '<button class="btn btn-danger" onclick="deleteIssue(\'' + issue.id + '\')">Delete</button>' +
-          '</div>'
-        : '<div class="issue-actions">' +
-          '<button class="btn btn-primary" onclick="toggleResolution(\'' + issue.id + '\')">✓ Resolve</button>' +
-          '<button class="btn btn-danger" onclick="deleteIssue(\'' + issue.id + '\')">Delete</button>' +
-          '</div>' +
-          '<div class="resolution-box" id="resolve-' + issue.id + '">' +
-          '<textarea placeholder="What was done to resolve this issue?" id="resolution-notes-' + issue.id + '" style="font-size:14px;"></textarea>' +
-          '<button class="btn btn-primary" onclick="submitResolution(\'' + issue.id + '\')">✓ Move to Resolved</button>' +
-          '</div>';
+          <article class="report-card" data-title="project summary progress">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Weekly Update</span>
+            </div>
+            <h3>Project Summary &amp; Progress</h3>
+            <p>Provides a weekly view of capital project status, progress tracking, and key milestones across active builds and major initiatives.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Project-Summary-Progress/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-      return '<article class="issue-card ' + pClass + '">' +
-        '<div class="issue-top">' +
-        '<div>' +
-        '<h3 class="issue-title">' + locationLine + '</h3>' +
-        '<div class="meta">' +
-        '<div class="meta-row">' +
-        '<span>📍 ' + escapeHtml(issue.city) + ', ' + escapeHtml(issue.state) + ' ' + escapeHtml(issue.zip) + '</span>' +
-        '<span>🏷️ ' + escapeHtml(issue.issueType) + '</span>' +
-        '<span>📅 ' + escapeHtml(issue.logDate) + '</span>' +
-        '</div>' +
-        '<div class="meta-row">' +
-        (issue.owner ? '<span>👤 ' + escapeHtml(issue.owner) + '</span>' : '') +
-        (issue.submittedBy ? '<span>✏️ ' + escapeHtml(issue.submittedBy) + '</span>' : '') +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '<span class="priority-pill priority-' + pClass + '">' + escapeHtml(issue.priority) + '</span>' +
-        '</div>' +
-        (issue.notes ? '<div class="notes">' + escapeHtml(issue.notes) + '</div>' : '') +
-        resolvedSection +
-        '</article>';
-    }
+          <article class="report-card" data-title="rio truss blade saw proposal">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Project Proposal</span>
+            </div>
+            <h3>Rio Truss Blade Saw Proposal</h3>
+            <p>Presents project scope, cost, and expected operational impact for a proposed capital investment in truss blade saw equipment.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Rio-Truss-Blade-Saw/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-    function render() {
-      const openIssues = issues.filter(function(i) { return i.status === "Open"; });
-      const resolvedIssues = issues.filter(function(i) { return i.status === "Resolved"; });
+          <article class="report-card" data-title="canyon lake project schedule">
+            <div class="card-pills">
+              <span class="pill pill-status">Current</span>
+              <span class="pill pill-cadence">Project Progress</span>
+            </div>
+            <h3>Canyon Lake Project Schedule</h3>
+            <p>Tracks project timeline, key milestones, and schedule progress for the Canyon Lake build.</p>
+            <a class="report-link" href="https://julianchetlange-svg.github.io/Canyon-Lake-Schedule/" target="_blank" rel="noopener noreferrer">
+              Open Report
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </article>
 
-      document.getElementById("openCount").textContent = openIssues.length;
-      document.getElementById("criticalCount").textContent = openIssues.filter(function(i) { return i.priority === "Critical" || i.priority === "High"; }).length;
-      document.getElementById("resolvedCount").textContent = resolvedIssues.length;
-      document.getElementById("totalCount").textContent = issues.length;
-      openTabCount.textContent = openIssues.length;
-      resolvedTabCount.textContent = resolvedIssues.length;
+        </div>
+      </section>
 
-      const filteredOpen = openIssues
-        .filter(function(i) { return !priorityFilter.value || i.priority === priorityFilter.value; })
-        .filter(function(i) { return issueMatches(i, openSearch.value || ""); })
-        .sort(function(a, b) { return priorityRank(a.priority) - priorityRank(b.priority); });
+      <!-- ── SEARCH: ALL REPORTS VIEW ── -->
+      <section id="all-search-results" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Search Results</h2>
+            <p id="search-result-count"></p>
+          </div>
+        </div>
+        <div class="report-grid" id="search-grid"></div>
+        <div class="empty-state" id="empty-state" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <h3>No reports found</h3>
+          <p>Try a different search term.</p>
+        </div>
+      </section>
 
-      const filteredResolved = resolvedIssues
-        .filter(function(i) { return !resolvedTypeFilter.value || i.issueType === resolvedTypeFilter.value; })
-        .filter(function(i) { return issueMatches(i, resolvedSearch.value || ""); });
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
 
-      openList.innerHTML = filteredOpen.length
-        ? filteredOpen.map(function(i) { return cardTemplate(i, false); }).join("")
-        : '<div class="empty"><span class="empty-icon">📭</span>No open issues match the current filters.</div>';
+<button class="mobile-nav-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
 
-      resolvedList.innerHTML = filteredResolved.length
-        ? filteredResolved.map(function(i) { return cardTemplate(i, true); }).join("")
-        : '<div class="empty"><span class="empty-icon">🎉</span>No resolved issues yet.</div>';
-    }
+<script>
+  // ── Data (mirrors the DOM) for search
+  const allReports = [
+    { title: 'Hot Issues Tracker', desc: 'Tracks high-priority operational issues across departments, surfacing escalated items that require immediate follow-up and resolution.', cadence: 'High Priority', href: 'https://julianchetlange-svg.github.io/Hot-Issues-Tracker/', tab: 'hot-items' },
+    { title: 'Forklift Utilization Report', desc: 'Analyzes forklift utilization across locations, identifying underutilized assets and opportunities for redeployment, reduction, or lifecycle optimization.', cadence: 'Monthly Update', href: 'https://julianchetlange-svg.github.io/Forklift-Utilization-Report/', tab: 'fleet-efficiency' },
+    { title: 'Truck Utilization', desc: 'Evaluates truck utilization across routes and locations using deliveries, miles, and time metrics to identify inefficiencies and optimization opportunities.', cadence: 'Monthly Update', href: 'https://julianchetlange-svg.github.io/Fleet-Utilization-TWRE/', tab: 'fleet-efficiency' },
+    { title: 'Fleet Work Order Follow-Up', desc: 'Tracks fleet work order aging, follow-up compliance, and missed actions to support timely maintenance execution and accountability.', cadence: 'Weekly Update', href: 'https://julianchetlange-svg.github.io/Fleet-WO-Follow-Up/', tab: 'fleet-operations' },
+    { title: 'PM Compliance Dashboard', desc: 'Monitors preventive maintenance compliance, identifies overdue assets, and highlights open work orders tied to missed PM intervals.', cadence: 'Weekly Follow-Up', href: 'https://julianchetlange-svg.github.io/PM-Compliance-Dashboard/', tab: 'fleet-operations' },
+    { title: 'Fleet Spend YOY Report', desc: 'Tracks year-over-year fleet spend trends, highlighting changes in maintenance, parts, and operating costs.', cadence: 'Monthly Update', href: 'https://julianchetlange-svg.github.io/Fleet-Spend-Report-YOY/', tab: 'fleet-operations' },
+    { title: 'Facilities Work Order Follow-Up', desc: 'Tracks facilities work order aging, follow-up activity, and missed actions to support timely resolution across locations.', cadence: 'Weekly Update', href: 'https://julianchetlange-svg.github.io/Facilities-WO-Follow-Up-Report/', tab: 'facilities-operations' },
+    { title: 'Facilities Spend Dashboard', desc: 'Tracks facilities-related spend across locations, highlighting cost trends, outliers, and opportunities for improved budget control.', cadence: 'Monthly Update', href: 'https://julianchetlange-svg.github.io/Facility-Spend-Dashboard/', tab: 'facilities-operations' },
+    { title: 'MTD Fuel Trends', desc: 'Tracks month-to-date fuel spend, cost per gallon trends, and volume patterns to monitor budget performance and project end-of-month fuel expense.', cadence: 'Weekly Update', href: 'https://julianchetlange-svg.github.io/MTD-Fuel-Trends/', tab: 'budgeting-and-forecasting' },
+    { title: 'Additional Spend Proposal', desc: 'Evaluates pre-purchase scenarios ahead of emissions changes, including cost impacts, timing strategies, and ROI considerations.', cadence: 'Strategic Analysis', href: 'https://julianchetlange-svg.github.io/Purchase-REV-Pricing-Emissions/', tab: 'budgeting-and-forecasting' },
+    { title: 'Project Summary & Progress', desc: 'Provides a weekly view of capital project status, progress tracking, and key milestones across active builds and major initiatives.', cadence: 'Weekly Update', href: 'https://julianchetlange-svg.github.io/Project-Summary-Progress/', tab: 'capital-projects' },
+    { title: 'Rio Truss Blade Saw Proposal', desc: 'Presents project scope, cost, and expected operational impact for a proposed capital investment in truss blade saw equipment.', cadence: 'Project Proposal', href: 'https://julianchetlange-svg.github.io/Rio-Truss-Blade-Saw/', tab: 'capital-projects' },
+    { title: 'Canyon Lake Project Schedule', desc: 'Tracks project timeline, key milestones, and schedule progress for the Canyon Lake build.', cadence: 'Project Progress', href: 'https://julianchetlange-svg.github.io/Canyon-Lake-Schedule/', tab: 'capital-projects' },
+  ];
 
-    function toggleResolution(issueId) {
-      const box = document.getElementById("resolve-" + issueId);
-      if (box) box.classList.toggle("active");
-    }
+  // ── Nav switching
+  let currentTab = 'fleet-efficiency';
 
-    async function submitResolution(issueId) {
-      const textarea = document.getElementById("resolution-notes-" + issueId);
-      const notes = textarea ? textarea.value.trim() : "";
-      if (!notes) { showToast("Please add resolution notes before resolving.", "error"); return; }
-      try {
-        await apiPost({ action: "resolve", id: issueId, resolutionNotes: notes });
-        showToast("Issue resolved successfully.");
-        await refreshData();
-      } catch(e) {
-        showToast("Unable to resolve issue. Try again.", "error");
-      }
-    }
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const panels  = document.querySelectorAll('.tab-panel');
+  const topbarLabel = document.getElementById('topbar-label');
+  const searchInput = document.getElementById('search-input');
 
-    async function reopenIssue(issueId) {
-      try {
-        await apiPost({ action: "reopen", id: issueId });
-        showToast("Issue reopened.");
-        await refreshData();
-      } catch(e) {
-        showToast("Unable to reopen issue. Try again.", "error");
-      }
-    }
-
-    async function deleteIssue(issueId) {
-      if (!confirm("Delete this issue? This cannot be undone.")) return;
-      try {
-        await apiPost({ action: "delete", id: issueId });
-        showToast("Issue deleted.");
-        await refreshData();
-      } catch(e) {
-        showToast("Unable to delete issue. Try again.", "error");
-      }
-    }
-
-    form.addEventListener("submit", async function(event) {
-      event.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
-      try {
-        const result = await apiPost({ action: "add", issue: data });
-        if (result && result.success === false) {
-          showToast(result.error || "Unable to submit issue.", "error");
-          return;
-        }
-        form.reset();
-        updateLocationPreview();
-        showToast("Issue logged successfully!");
-        await refreshData();
-      } catch(error) {
-        console.error(error);
-        showToast("Unable to submit. Check Apps Script deployment and permissions.", "error");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "Add Issue";
-      }
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      switchTab(tab);
+      closeSidebar();
+      searchInput.value = '';
     });
+  });
 
-    locationSelect.addEventListener("change", updateLocationPreview);
+  function switchTab(tab) {
+    currentTab = tab;
+    navBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    panels.forEach(p => p.classList.toggle('active', p.id === tab));
+    const activeBtn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
+    topbarLabel.textContent = activeBtn ? activeBtn.textContent.replace(/\d+/, '').trim() : '';
+  }
 
-    document.querySelectorAll(".tab-button").forEach(function(button) {
-      button.addEventListener("click", function() {
-        document.querySelectorAll(".tab-button").forEach(function(b) { b.classList.remove("active"); });
-        document.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("active"); });
-        button.classList.add("active");
-        document.getElementById(button.dataset.tab).classList.add("active");
-      });
-    });
+  // ── Search
+  const arrowSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
 
-    [openSearch, resolvedSearch, priorityFilter, resolvedTypeFilter].forEach(function(el) {
-      el.addEventListener("input", render);
-      el.addEventListener("change", render);
-    });
+  function makeCard(r) {
+    return `
+      <article class="report-card" data-title="${r.title.toLowerCase()}">
+        <div class="card-pills">
+          <span class="pill pill-status">Current</span>
+          <span class="pill pill-cadence">${r.cadence}</span>
+        </div>
+        <h3>${r.title}</h3>
+        <p>${r.desc}</p>
+        <a class="report-link" href="${r.href}" target="_blank" rel="noopener noreferrer">Open Report ${arrowSVG}</a>
+      </article>`;
+  }
 
-    showSetupIfNeeded();
-    refreshData();
-    setInterval(refreshData, 60000);
-  </script>
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) {
+      switchTab(currentTab);
+      topbarLabel.textContent = document.querySelector(`.nav-btn[data-tab="${currentTab}"]`).textContent.replace(/\d+/, '').trim();
+      return;
+    }
+
+    // Show search panel
+    navBtns.forEach(b => b.classList.remove('active'));
+    panels.forEach(p => p.classList.toggle('active', p.id === 'all-search-results'));
+    topbarLabel.textContent = `Search: "${searchInput.value}"`;
+
+    const results = allReports.filter(r =>
+      r.title.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q) || r.cadence.toLowerCase().includes(q)
+    );
+
+    const grid = document.getElementById('search-grid');
+    const empty = document.getElementById('empty-state');
+    const count = document.getElementById('search-result-count');
+
+    if (results.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      count.textContent = 'No reports matched your query.';
+    } else {
+      grid.innerHTML = results.map(makeCard).join('');
+      empty.style.display = 'none';
+      count.textContent = `${results.length} report${results.length !== 1 ? 's' : ''} found`;
+    }
+  });
+
+  // ── Mobile sidebar
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+</script>
 </body>
 </html>
